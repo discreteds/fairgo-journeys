@@ -99,7 +99,7 @@ Every place in the UI where a single user action triggers one or more backend ca
 | S03 Home | 1 + N (events + positions per event) | Yes (positions parallel) | Most expensive for users with many events |
 | S05 Dashboard | 6 | Yes (5 parallel after event load) | Most critical — every journey passes through |
 | S06 Prepare & Share | 2 | Yes | Persons + invite-codes |
-| S07 People | 3 + N (persons + PFG per person + groups) | Yes | Could benefit from enriched persons endpoint |
+| S07 People | 3 (persons with PFG + groups) | Yes | ~~N+1 resolved~~ — `_person_to_dict()` embeds PFG in person response |
 | S08 Groups | 2 | Yes | Lightweight |
 | S10 Expense Detail | 3 + N (txn + line items + splits per item) | Yes | Could benefit from enriched transaction endpoint |
 | S11 Balances | 1 | N/A | Positions endpoint returns everything |
@@ -170,7 +170,7 @@ Backend steps:
 These are not bugs but potential future optimisations:
 
 1. **Enriched events list** — `GET /events` with embedded position summaries would eliminate N+1 on S03
-2. **Enriched persons** — `GET /persons` with embedded PFG data would eliminate N+1 on S07
+2. ~~**Enriched persons**~~ — RESOLVED: `_person_to_dict()` already embeds PFG data (group_id, group_name, is_singleton) in person responses
 3. **Enriched transactions** — `GET /transactions/{tid}` with embedded line items and splits would reduce S10 to 1 call
 4. **Activity feed endpoint** — `GET /users/me/activity` would make S17 viable without N×3 calls
 5. **Bulk invite codes** — `POST /invite-codes/bulk` would reduce S06 "Create All Links" from N calls to 1
