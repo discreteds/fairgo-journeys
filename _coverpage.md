@@ -1,4 +1,4 @@
-# Fair Go Journeys
+# Fair Go - User Journeys
 
 > User journey documentation for the Fair Go expense-splitting application
 
