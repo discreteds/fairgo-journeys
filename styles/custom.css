@@ -96,31 +96,22 @@
 }
 
 /* --- Cover Page --- */
-body section.cover,
-[data-theme="dark"] section.cover,
-[data-theme="light"] section.cover {
-  background: linear-gradient(160deg, #0f2027 0%, #203a43 40%, #2c5364 100%) !important;
-  color: #f0f0f0 !important;
-}
-
-body section.cover h1,
+/* Dark readable text on the theme's light pastel gradient */
 section.cover h1 {
-  color: #ffffff !important;
+  color: #1a1a2e !important;
   font-weight: 700;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-body section.cover blockquote,
-body section.cover blockquote p,
+section.cover blockquote,
 section.cover blockquote p {
-  color: #d0d0d0 !important;
+  color: #333 !important;
 }
 
-body section.cover ul li,
 section.cover ul li {
-  color: #c8d6e5 !important;
+  color: #2d3436 !important;
 }
 
+/* Buttons — readable and clickable */
 section.cover .cover-main > p:last-child a {
   border-radius: 6px;
   padding: 0.7em 1.8em;
@@ -130,28 +121,28 @@ section.cover .cover-main > p:last-child a {
   border: 2px solid transparent;
 }
 
-/* First button (Get Started) — primary */
+/* Primary button */
 section.cover .cover-main > p:last-child a:first-child {
-  background: #42b983 !important;
+  background: #2d6a4f !important;
   color: #ffffff !important;
-  border-color: #42b983;
+  border-color: #2d6a4f;
 }
 
 section.cover .cover-main > p:last-child a:first-child:hover {
-  background: #38a373 !important;
-  border-color: #38a373;
+  background: #1b4332 !important;
+  border-color: #1b4332;
 }
 
-/* Other buttons — outlined */
+/* Secondary buttons */
 section.cover .cover-main > p:last-child a:not(:first-child) {
-  background: transparent !important;
-  color: #ffffff !important;
-  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(0, 0, 0, 0.05) !important;
+  color: #1a1a2e !important;
+  border-color: #555;
 }
 
 section.cover .cover-main > p:last-child a:not(:first-child):hover {
-  border-color: #ffffff;
-  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: #1a1a2e;
+  background: rgba(0, 0, 0, 0.1) !important;
 }
 
 /* --- Responsive --- */
