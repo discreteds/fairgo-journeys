@@ -119,6 +119,19 @@
         hook.doneEach(function() {
           renderMermaid();
         });
+        // Override cover page inline style set by darklight theme
+        hook.ready(function() {
+          var cover = document.querySelector('section.cover');
+          if (cover) {
+            cover.style.background = 'linear-gradient(160deg, #0f2027 0%, #203a43 40%, #2c5364 100%)';
+          }
+        });
+        hook.doneEach(function() {
+          var cover = document.querySelector('section.cover');
+          if (cover) {
+            cover.style.background = 'linear-gradient(160deg, #0f2027 0%, #203a43 40%, #2c5364 100%)';
+          }
+        });
       });
     }
 
