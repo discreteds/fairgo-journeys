@@ -95,56 +95,6 @@
   color: var(--theme-color, #42b983);
 }
 
-/* --- Cover Page --- */
-/* Dark readable text on the theme's light pastel gradient */
-section.cover h1 {
-  color: #1a1a2e !important;
-  font-weight: 700;
-}
-
-section.cover blockquote,
-section.cover blockquote p {
-  color: #333 !important;
-}
-
-section.cover ul li {
-  color: #2d3436 !important;
-}
-
-/* Buttons — readable and clickable */
-section.cover .cover-main > p:last-child a {
-  border-radius: 6px;
-  padding: 0.7em 1.8em;
-  text-decoration: none;
-  font-weight: 600;
-  transition: all 0.2s ease;
-  border: 2px solid transparent;
-}
-
-/* Primary button */
-section.cover .cover-main > p:last-child a:first-child {
-  background: #2d6a4f !important;
-  color: #ffffff !important;
-  border-color: #2d6a4f;
-}
-
-section.cover .cover-main > p:last-child a:first-child:hover {
-  background: #1b4332 !important;
-  border-color: #1b4332;
-}
-
-/* Secondary buttons */
-section.cover .cover-main > p:last-child a:not(:first-child) {
-  background: rgba(0, 0, 0, 0.05) !important;
-  color: #1a1a2e !important;
-  border-color: #555;
-}
-
-section.cover .cover-main > p:last-child a:not(:first-child):hover {
-  border-color: #1a1a2e;
-  background: rgba(0, 0, 0, 0.1) !important;
-}
-
 /* --- Responsive --- */
 @media screen and (max-width: 768px) {
   .mermaid svg {
