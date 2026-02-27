@@ -1,0 +1,134 @@
+/* ============================================
+   Fair Go Journeys - Custom Docsify Styles
+   ============================================ */
+
+/* --- ASCII Wireframes --- */
+/* Ensure code blocks with wireframes render in monospace with no wrapping */
+.markdown-section pre {
+  font-family: 'Courier New', Courier, monospace;
+  line-height: 1.3;
+  overflow-x: auto;
+  tab-size: 4;
+}
+
+.markdown-section code {
+  font-family: 'Courier New', Courier, monospace;
+}
+
+/* --- Tables --- */
+.markdown-section table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0;
+}
+
+.markdown-section table th,
+.markdown-section table td {
+  padding: 0.5em 0.75em;
+  border: 1px solid var(--border-color, #ddd);
+  text-align: left;
+  vertical-align: top;
+}
+
+.markdown-section table th {
+  font-weight: 600;
+}
+
+.markdown-section table tr:nth-child(even) {
+  background: var(--table-row-even-background, rgba(0, 0, 0, 0.02));
+}
+
+/* Dark mode table adjustments */
+[data-theme="dark"] .markdown-section table tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+[data-theme="dark"] .markdown-section table th,
+[data-theme="dark"] .markdown-section table td {
+  border-color: #444;
+}
+
+/* --- Mermaid Diagrams --- */
+.mermaid {
+  text-align: center;
+  margin: 1.5em 0;
+}
+
+.mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Make Mermaid clickable nodes look interactive */
+.mermaid .node {
+  cursor: pointer;
+}
+
+.mermaid .node:hover rect,
+.mermaid .node:hover polygon {
+  filter: brightness(0.9);
+}
+
+/* --- Sidebar Sub-group Labels --- */
+/* Italic items in sidebar act as section headers */
+.sidebar-nav li em {
+  display: block;
+  font-size: 0.8em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--sidebar-nav-link-color--hover, #666);
+  margin-top: 0.75em;
+  margin-bottom: 0.25em;
+  padding-left: 0;
+  font-style: normal;
+}
+
+/* Hide bullet for sub-group label items */
+.sidebar-nav li > em {
+  list-style: none;
+}
+
+/* --- S05 Hub Highlight in Sidebar --- */
+.sidebar-nav a[href*="S05-event-dashboard"] {
+  font-weight: 700;
+  color: var(--theme-color, #42b983);
+}
+
+/* --- Cover Page --- */
+section.cover {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+section.cover .cover-main > p:last-child a {
+  border-radius: 4px;
+  padding: 0.6em 1.5em;
+  text-decoration: none;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+
+section.cover .cover-main > p:last-child a:hover {
+  opacity: 0.85;
+}
+
+/* --- Responsive --- */
+@media screen and (max-width: 768px) {
+  .mermaid svg {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .markdown-section table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
+
+/* --- Pagination --- */
+.docsify-pagination-container {
+  border-top: 1px solid var(--border-color, #eee);
+  margin-top: 2em;
+  padding-top: 1em;
+}

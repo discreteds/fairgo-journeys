@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fair Go Journeys</title>
+  <meta name="description" content="User journey documentation for the Fair Go expense-splitting application">
+
+  <!-- Docsify dark/light theme -->
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify-darklight-theme@3/dist/style.min.css"
+        title="docsify-darklight-theme" type="text/css">
+
+  <!-- Custom styles -->
+  <link rel="stylesheet" href="styles/custom.css">
+</head>
+<body>
+  <div id="app">Loading...</div>
+
+  <script>
+    window.$docsify = {
+      name: 'Fair Go Journeys',
+      repo: '',
+      loadSidebar: true,
+      loadNavbar: true,
+      coverpage: true,
+      relativePath: true,
+      subMaxLevel: 3,
+      auto2top: true,
+      search: {
+        maxAge: 86400000,
+        paths: 'auto',
+        placeholder: 'Search docs...',
+        noData: 'No results',
+        depth: 6
+      },
+      pagination: {
+        previousText: 'Previous',
+        nextText: 'Next',
+        crossChapter: true,
+        crossChapterText: true
+      },
+      copyCode: {
+        buttonText: 'Copy',
+        successText: 'Copied'
+      },
+      darklight: {
+        defaultTheme: 'light'
+      },
+      markdown: {
+        renderer: {
+          // Ensure code blocks with ASCII art render well
+          code: function(code, lang) {
+            if (lang === 'mermaid') {
+              return '<div class="mermaid">' + code + '</div>';
+            }
+            return this.origin.code.apply(this, arguments);
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Docsify core -->
+  <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js"></script>
+
+  <!-- Plugins -->
+  <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify-darklight-theme@3/dist/index.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify-pagination@2/dist/docsify-pagination.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify-copy-code@2/dist/docsify-copy-code.min.js"></script>
+
+  <!-- Syntax highlighting -->
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-json.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
+
+  <!-- Mermaid -->
+  <script src="//cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: false,
+      securityLevel: 'loose',
+      theme: 'default',
+      flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        curve: 'basis'
+      }
+    });
+
+    // Re-render Mermaid diagrams on page change
+    var defined = false;
+    var defined2 = false;
+
+    function renderMermaid() {
+      var els = document.querySelectorAll('.mermaid');
+      els.forEach(function(el, i) {
+        if (el.getAttribute('data-processed')) return;
+        try {
+          var id = 'mermaid-' + Date.now() + '-' + i;
+          mermaid.render(id, el.textContent).then(function(result) {
+            el.innerHTML = result.svg;
+            el.setAttribute('data-processed', 'true');
+          });
+        } catch (e) {
+          console.error('Mermaid rendering error:', e);
+        }
+      });
+    }
+
+    // Hook into Docsify lifecycle
+    if (!defined) {
+      defined = true;
+      window.$docsify = window.$docsify || {};
+      window.$docsify.plugins = (window.$docsify.plugins || []).concat(function(hook) {
+        hook.doneEach(function() {
+          renderMermaid();
+        });
+      });
+    }
+
+    // Sync Mermaid theme with dark mode
+    if (!defined2) {
+      defined2 = true;
+      var observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(m) {
+          if (m.attributeName === 'data-theme') {
+            var theme = document.documentElement.getAttribute('data-theme');
+            mermaid.initialize({
+              startOnLoad: false,
+              securityLevel: 'loose',
+              theme: theme === 'dark' ? 'dark' : 'default'
+            });
+            // Re-render with new theme
+            document.querySelectorAll('.mermaid').forEach(function(el) {
+              el.removeAttribute('data-processed');
+            });
+            renderMermaid();
+          }
+        });
+      });
+      observer.observe(document.documentElement, { attributes: true });
+    }
+  </script>
+</body>
+</html>
