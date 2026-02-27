@@ -43,6 +43,7 @@ This is the most important screen in the app. Every journey passes through it. I
 │  │ People (6)           ▸   ││
 │  │ Groups (2)           ▸   ││
 │  │ Settlements (1)      ▸   ││
+│  │ Share Event →            ││
 │  │ Invite Link          📋  ││
 │  └──────────────────────────┘│
 │                              │
@@ -51,6 +52,23 @@ This is the most important screen in the app. Every journey passes through it. I
 │  [Events] [Activity] [Me]   │
 └──────────────────────────────┘
 ```
+
+## Wireframe — Split-Pending Expenses
+
+When transactions have `splits_status: "pending"`, they display with a pending indicator instead of payer info:
+
+```
+│  Recent Expenses             │
+│  ┌──────────────────────────┐│
+│  │ Pizza            $45.00  ││
+│  │ ⏳ splits pending         ││
+│  ├──────────────────────────┤│
+│  │ Drinks           $30.00  ││
+│  │ ⏳ splits pending         ││
+│  └──────────────────────────┘│
+```
+
+Once people are added and splits are auto-assigned, these revert to the normal display showing payer and per-person amounts.
 
 ## Wireframe — Admin Extras
 
@@ -115,7 +133,8 @@ Calls 2-6 parallelised after call 1 returns event metadata.
 | People ▸ | All | → S07 | Navigation |
 | Groups ▸ | All | → S08 | Navigation |
 | Settlements ▸ | All | → S12 (list mode) | Navigation |
-| Invite Link 📋 | All | Clipboard | Copy default invite URL |
+| Share Event → | Admin | → S06 | Navigation — Prepare & Share flow |
+| Invite Link 📋 | All | Clipboard | Copy default invite URL (quick access) |
 | Approve role (inline) | Admin | Stay on S05 | `POST /events/{eid}/event-roles/{rid}/approve` |
 | Reject role (inline) | Admin | Stay on S05 | `POST /events/{eid}/event-roles/{rid}/remove` |
 | Review transaction | Admin | → S10 | Navigation |
@@ -129,7 +148,9 @@ Calls 2-6 parallelised after call 1 returns event metadata.
 - **"Settle Up"** button only appears when user's PFG net < 0 (they owe money)
 - **"You're owed"** variant appears when PFG net > 0 (green, no settle-up CTA)
 - **"All settled"** badge when PFG net = $0.00
-- **Invite link** always one tap to copy — no need to navigate to a management screen
+- **Split-pending expenses** show "⏳ splits pending" instead of payer info — transitions to normal display once splits are assigned
+- **"Share Event →"** leads to S06 Prepare & Share — the recommended path for sharing with people attached
+- **Invite link** always one tap to copy — quick access for admins who already know what they're doing
 - **Pending actions** banner only shows for admins with pending items
 - **Funding status** hidden unless event is unfunded and user is admin
 - **Summary stats** (total, people, txn count) computed from loaded data

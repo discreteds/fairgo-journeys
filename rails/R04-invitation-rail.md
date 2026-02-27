@@ -1,7 +1,7 @@
 # R04 — Invitation Rail
 
-**Purpose:** Admin generates invite, recipient joins event.
-**Primary persona:** Admin (send side), new/existing user (receive side).
+**Purpose:** Admin prepares and shares invites, recipient joins event.
+**Primary persona:** Admin (prepare & share side), new/existing user (receive side).
 
 ## Rail Path — Two Parallel Tracks
 
@@ -10,16 +10,16 @@ SEND SIDE (Admin)               RECEIVE SIDE (Invitee)
 ─────────────────               ──────────────────────
 
 S05 Event Dashboard             Opens invite link
-  │ "Invite Link 📋"               │
+  │ "Share Event →"                 │
   │ or "People ▸" →                │
   │ "Send Personal Invite"         │
   ▼                                ▼
-S06 Share Invite               S01 Welcome (deep link)
-  │ [Copy Link]                    │
-  │ [Create Personal Link]         ▼
-  │                            S02 Register / Login
-  │                                │
-  │                                ├── (auto-join via session code)
+S06 Prepare & Share           S01 Welcome (deep link)
+  │ Person checklist              │
+  │ [Copy Group Link]             ▼
+  │ [Share via...]            S02 Register / Login
+  │ [Create Personal Link]        │
+  │ [Create All Links]            ├── (auto-join via session code)
   │                                │   ⚡ POST /events/join
   │                                │
   │                                ▼
@@ -36,16 +36,16 @@ S05 Event Dashboard ◄─── admin approves ───┘
 
 | From | Condition | To |
 |------|-----------|-----|
-| S05 → S06 | Admin wants to invite | Generate side |
-| S06 → S07 | Personal invite needs person selection | Detour to people list |
+| S05 → S06 | Admin taps "Share Event →" | Prepare & Share |
+| S07 → S06 | Admin taps "Send Personal Invite" for a person | Prepare & Share (pre-selected person) |
 | S02 → S05 | Invitee registers with code | Auto-join, pending approval |
 | S05 (admin) → S05 (invitee) | Admin approves | Invitee gains full access |
 
 ## Three Invite Paths
 
-### Path A: Generic Invite (Most Common)
+### Path A: Group Link (Most Common)
 ```
-Admin copies link from S05 → shares externally → invitee opens link → S02 → S05
+Admin copies group link from S06 → shares externally → invitee opens link → S02 → S05
 ```
 
 ### Path B: Personal Invite (Identity Resolution)
@@ -59,7 +59,19 @@ Admin creates personal invite on S06 for placeholder Dave
 Existing user on S03 → "Join with Code" → enters code → S05
 ```
 
+## S06 Prepare & Share — Admin Flow
+
+Before sharing, the admin sees a person-by-person checklist:
+
+1. **Review people** — each placeholder person shows their resolution status
+2. **Add contact info** — inline phone number field for future SMS feature
+3. **Create personal links** — per-person or bulk creation of invite codes
+4. **Share** — copy group link, use native share sheet, or share individual links
+
+This ensures the admin has added people and confirmed identities before sending invites.
+
 ## Scenarios Using This Rail
 
+- SC01 (Alice Organizes Dinner) — prepare & share as final step after expenses and people
 - SC02 (Bob Joins via Invite) — generic invite, full flow
 - SC03 (Family Holiday) — people added as placeholders, personal invites sent later

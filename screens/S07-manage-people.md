@@ -1,6 +1,6 @@
 # S07 — Manage People
 
-**Purpose:** View/add/edit persons. Identity resolution (merge). Settlement group assignment.
+**Purpose:** View/add/edit persons. Identity resolution (merge). Settlement group assignment. Inline split preview on add.
 **Visible to:** All (admin has extra actions).
 **Rails:** R02, R06
 **Scenarios:** SC01, SC03
@@ -44,6 +44,89 @@
 Each person row shows:
 - **Line 1:** Status icon + display name + resolution badge
 - **Line 2:** Settlement group colour + settlement group name
+
+## Wireframe — Inline Split Preview (After Adding Person)
+
+When a person is added and split-pending transactions are auto-assigned, an inline split summary appears showing the effect on all affected expenses:
+
+```
+┌──────────────────────────────┐
+│  ← People · Friday Dinner    │
+├──────────────────────────────┤
+│                              │
+│  ┌──────────────────────────┐│
+│  │ 🟢 Alice (you)          ││
+│  ├──────────────────────────┤│
+│  │ 🟡 Bob  ⏳ placeholder   ││
+│  └──────────────────────────┘│
+│                              │
+│  ┌──────────────────────────┐│
+│  │ ✓ Bob added              ││
+│  │                          ││
+│  │ Updated splits:          ││
+│  │ ┌────────────────────────┐│
+│  │ │ Pizza $45.00        ▸  ││
+│  │ │ → $22.50 each         ││
+│  │ │   (Alice, Bob)         ││
+│  │ ├────────────────────────┤│
+│  │ │ Drinks $30.00       ▸  ││
+│  │ │ → $15.00 each         ││
+│  │ │   (Alice, Bob)         ││
+│  │ └────────────────────────┘│
+│  └──────────────────────────┘│
+│                              │
+│       ( + Add Person )       │
+└──────────────────────────────┘
+```
+
+Each expense row in the split summary is tappable (▸) to adjust individual weights for that expense.
+
+## Wireframe — Split Adjustment (Tapped Expense Row)
+
+```
+┌──────────────────────────────┐
+│  ← Adjust Split · Pizza      │
+├──────────────────────────────┤
+│                              │
+│  Pizza — $45.00              │
+│                              │
+│  Split method                │
+│  ● Equal  ○ Custom weights   │
+│                              │
+│  ┌──────────────────────────┐│
+│  │ Alice    [1_]  $22.50    ││
+│  │ Bob      [1_]  $22.50    ││
+│  └──────────────────────────┘│
+│                              │
+│  ┌──────────────────────────┐│
+│  │        Save Split        ││
+│  └──────────────────────────┘│
+└──────────────────────────────┘
+```
+
+## Wireframe — Multiple Pending Expenses
+
+When there are multiple affected expenses, a "Review All Splits" action appears:
+
+```
+│  ┌──────────────────────────┐│
+│  │ ✓ Dave added             ││
+│  │                          ││
+│  │ Updated splits:          ││
+│  │ ┌────────────────────────┐│
+│  │ │ Pizza $45.00        ▸  ││
+│  │ │ → $11.25 each (4)     ││
+│  │ ├────────────────────────┤│
+│  │ │ Drinks $30.00       ▸  ││
+│  │ │ → $7.50 each (4)      ││
+│  │ ├────────────────────────┤│
+│  │ │ Taxi $20.00         ▸  ││
+│  │ │ → $5.00 each (4)      ││
+│  │ └────────────────────────┘│
+│  │                          ││
+│  │ [Review All Splits]      ││
+│  └──────────────────────────┘│
+```
 
 ## Wireframe — Person Detail (Admin Tap)
 
@@ -101,9 +184,36 @@ Each person row shows:
 1. Show inline form: display name (required), email hint (optional), phone hint (optional)
 2. POST /events/{eid}/persons
      {display_name, email_hint?, phone_hint?}
+   → Response: PersonCreateResponse
+     {
+       person: PersonOut,
+       affected_transactions: [TransactionOut, ...]
+     }
    → person created with resolution_status: placeholder
    → singleton PFG auto-created by backend
-3. Refresh person list
+   → if split-pending transactions exist: splits auto-assigned, splits_status → "assigned"
+3. If affected_transactions is non-empty:
+   → Show inline split preview (see wireframe above)
+   → Each expense row is tappable to adjust weights
+4. Refresh person list
+```
+
+## Orchestration — "Adjust Split" (Tapped Expense Row)
+
+```
+1. User taps an expense row in the split preview
+2. Show split adjustment form (weight per person)
+3. PUT /events/{eid}/transactions/{tid}
+     {line_items: [{splits: [updated splits with new weights]}]}
+4. Refresh split preview to show updated shares
+```
+
+## Orchestration — "Review All Splits"
+
+```
+1. User taps "Review All Splits" (visible when ≥2 affected expenses)
+2. Show all affected expenses with their current splits in a scrollable list
+3. Each expense row is individually adjustable (same as single expense tap)
 ```
 
 ## Orchestration — "Merge" (Admin)
@@ -151,7 +261,7 @@ When a potential match is shown:
 ## Orchestration — "Send Personal Invite" (Admin)
 
 ```
-→ S06 (generate side, pre-selected person)
+→ S06 (Prepare & Share, pre-selected person)
 ```
 
 ## Smart Defaults
@@ -161,6 +271,9 @@ When a potential match is shown:
 - Self-merge available to members who see their own placeholder ("This is me" button)
 - Email/phone hints are optional on add — useful for identity resolution but not required
 - Persons sorted: active first, then placeholders
+- **Inline split preview** appears automatically after adding a person when split-pending transactions exist — no extra navigation needed
+- **Auto-assigned splits default to equal** — admin can adjust individual expenses inline without leaving S07
+- **"Review All Splits"** only appears when there are ≥2 affected expenses — keeps the UI clean for simple cases
 
 ## Error States
 

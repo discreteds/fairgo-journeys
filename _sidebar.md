@@ -14,7 +14,7 @@
 
   - *Core*
   - [S05 Event Dashboard](/screens/S05-event-dashboard.md)
-  - [S06 Invite / Join](/screens/S06-invite-join.md)
+  - [S06 Prepare & Share](/screens/S06-invite-join.md)
   - [S07 Manage People](/screens/S07-manage-people.md)
   - [S08 Manage Groups](/screens/S08-manage-groups.md)
 
@@ -51,3 +51,4 @@
   - [A01 Orchestrations](/appendix/A01-orchestrations.md)
   - [A02 Smart Defaults](/appendix/A02-smart-defaults.md)
   - [A03 Role Permissions UI](/appendix/A03-role-permissions-ui.md)
+  - [A04 SC01 API Changes](/appendix/A04-sc01-api-changes.md)

@@ -27,13 +27,37 @@ S05 Event Dashboard
   [transfer to R02 Expense, R04 Invitation, R06 Admin]
 ```
 
+## SC01 Extended Path (Capture First, Share Last)
+
+For the primary scenario (Alice Organizes Dinner), the onboarding rail extends through expense entry, people management, and sharing:
+
+```
+S05 Event Dashboard
+  │
+  ├──── "+ Add Expense" ──→ S09 Add Expense (split-pending)
+  │                          │
+  │                          ▼
+  │                        S05 (expense saved, splits pending)
+  │
+  ├──── "People" ─────────→ S07 Manage People (add + auto-assign splits)
+  │                          │
+  │                          ▼
+  │                        S05 (balances visible)
+  │
+  └──── "Share Event →" ──→ S06 Prepare & Share
+                             [transfer to R04 Invitation Rail]
+```
+
+Expenses and people are equally available from S05. The above order is recommended for first-time users but not enforced.
+
 ## Transfer Points
 
 | From | Condition | To |
 |------|-----------|-----|
 | S02 → S05 | User arrived with invite code | R04 (Invitation Rail — redeem side) |
 | S05 → S09 | User taps FAB | R02 (Expense Rail) |
-| S05 → S06 | Admin shares invite | R04 (Invitation Rail — generate side) |
+| S05 → S06 | Admin taps "Share Event →" | R04 (Invitation Rail — prepare & share side) |
+| S05 → S07 | Admin taps "People" | People management (inline split preview) |
 | S05 → S16 | Admin has pending actions | R06 (Admin Rail) |
 
 ## Key Orchestration Sequence
@@ -43,12 +67,12 @@ The "zero to first event" path triggers these backend calls:
 ```
 POST /auth/register              # 1. Create account
 POST /events                     # 2. Create event (auto: person + admin role)
-POST /events/{eid}/invite-codes  # 3. Auto-generate invite link
+POST /events/{eid}/invite-codes  # 3. Auto-generate invite link (NOT shared yet)
 ```
 
-Three API calls. User filled two forms (register + event name). Everything else was automatic.
+Three API calls. User filled two forms (register + event name). Everything else was automatic. The invite code is generated but not shared until the user reaches S06.
 
 ## Scenarios Using This Rail
 
-- SC01 (Alice Organizes Dinner) — full path
+- SC01 (Alice Organizes Dinner) — full path including expense → people → share
 - SC02 (Bob Joins via Invite) — register → invite code branch

@@ -46,6 +46,34 @@ This is where "aggressive defaults" matters most. The common case — "I paid, e
 └──────────────────────────────┘
 ```
 
+## Wireframe — Split-Pending Mode (≤1 Person in Event)
+
+When Alice is the only person in the event, split controls are replaced with a pending indicator. The expense can still be saved — splits will be auto-assigned when people are added.
+
+```
+┌──────────────────────────────┐
+│  ← Add Expense               │
+├──────────────────────────────┤
+│                              │
+│  What for?     [Pizza______] │
+│  Amount        [$45.00_____] │
+│                              │
+│  ┌──────────────────────────┐│
+│  │ ℹ️ Splits will be assigned ││
+│  │ when you add people.     ││
+│  │                          ││
+│  │ You can add people after ││
+│  │ saving this expense.     ││
+│  └──────────────────────────┘│
+│                              │
+│  ┌──────────────────────────┐│
+│  │       Save Expense       ││
+│  └──────────────────────────┘│
+│                              │
+│  ⊕ Add another line item    │
+└──────────────────────────────┘
+```
+
 ## Wireframe — Multi-Line-Item Mode
 
 Tapping "Add another line item" expands the form:
@@ -101,7 +129,31 @@ When "Custom weights" is selected for a line item:
 
 Live-calculated shares update as weights change.
 
+## Orchestration — "Save Expense" (Split-Pending, ≤1 Person)
+
+When the event has ≤1 person, the expense is saved without splits:
+
+```
+POST /events/{eid}/transactions
+  {
+    description: "Pizza",
+    splits_status: "pending",
+    currency: "AUD",
+    line_items: [{
+      description: "Pizza",
+      amount: 45.00,
+      splits: []
+    }]
+  }
+→ transaction created with splits_status: "pending"
+→ S05 (event dashboard, expense shows "⏳ splits pending")
+```
+
+When people are later added via S07, the backend auto-assigns splits to all pending transactions.
+
 ## Orchestration — "Save Expense" (Single Line Item, Equal Split)
+
+When the event has ≥2 people, the normal split flow applies:
 
 ```
 POST /events/{eid}/transactions
@@ -156,6 +208,10 @@ POST /events/{eid}/transactions
   }
 ```
 
+## Orchestration — "Save Expense" (Auto-Assign When People Exist)
+
+If the event already has people but the user creates a split-pending transaction (edge case), the backend auto-assigns splits immediately using the existing people, transitioning `splits_status` to `"assigned"` on save.
+
 ## Orchestration — "Multiple..." Payer
 
 When multiple people paid:
@@ -179,30 +235,14 @@ This generates multiple `side: "expense"` splits with weights proportional to am
 | Split method | Equal (weight: 1 each) | Custom weights per person |
 | Line item description | Same as transaction description (single item mode) | Separate descriptions |
 | Currency | Event currency | Not overridable per-transaction |
+| Splits status | "assigned" (≥2 people) / "pending" (≤1 person) | Automatic based on person count |
 
 - Most expenses: fill "What for" + "Amount" → tap Save. Two fields, one tap.
+- **Split-pending mode** activates automatically when ≤1 person — no redirect, no blocking
 - Groups appear as named shortcuts in the "Split between" picker
 - Multi-line-item is opt-in, not forced
 - "Custom weights" shows live-calculated shares as weights are adjusted
 - Modifier field is hidden (always 1.0) — available as future feature for child/dietary adjustments
-
-## Empty State
-
-If the event has no other people yet:
-
-```
-┌──────────────────────────────┐
-│  ← Add Expense               │
-├──────────────────────────────┤
-│                              │
-│  ⚠️ Add people first         │
-│  You're the only person in   │
-│  this event. Add others to   │
-│  split expenses with.        │
-│                              │
-│  [Add People →]              │
-└──────────────────────────────┘
-```
 
 ## Error States
 
