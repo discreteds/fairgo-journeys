@@ -7,6 +7,6 @@
 - 6 journey rails mapping linear navigation paths
 - 3 reference appendices for orchestrations, defaults, and permissions
 
-[Get Started](00-overview.md)
-[Interactive Map](nav-map-interactive.md)
-[Screen Specs](screens/S05-event-dashboard.md)
+[Get Started](/00-overview.md)
+[Interactive Map](/nav-map-interactive.md)
+[Screen Specs](/screens/S05-event-dashboard.md)

@@ -6,12 +6,12 @@ User journey documentation for the **Fair Go** web SaaS expense-splitting applic
 
 | I want to... | Go here |
 |---|---|
-| Understand the project | [Project Overview](00-overview.md) |
-| See how screens connect | [Interactive Navigation Map](nav-map-interactive.md) |
-| Read screen specifications | [S05 Event Dashboard](screens/S05-event-dashboard.md) (hub screen) |
-| Walk through a user story | [SC01 Alice Organizes Dinner](scenarios/SC01-alice-organizes-dinner.md) |
-| Follow a navigation rail | [R01 Onboarding Rail](rails/R01-onboarding-rail.md) |
-| Check API orchestrations | [A01 Orchestrations](appendix/A01-orchestrations.md) |
+| Understand the project | [Project Overview](/00-overview.md) |
+| See how screens connect | [Interactive Navigation Map](/nav-map-interactive.md) |
+| Read screen specifications | [S05 Event Dashboard](/screens/S05-event-dashboard.md) (hub screen) |
+| Walk through a user story | [SC01 Alice Organizes Dinner](/scenarios/SC01-alice-organizes-dinner.md) |
+| Follow a navigation rail | [R01 Onboarding Rail](/rails/R01-onboarding-rail.md) |
+| Check API orchestrations | [A01 Orchestrations](/appendix/A01-orchestrations.md) |
 
 ## Document Structure
 
