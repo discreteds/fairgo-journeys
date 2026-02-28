@@ -10,7 +10,9 @@ Frank creates a monthly bill event:
 
 ```
 S04 Create Event → "House Bills Feb"
-    ⚡ event created
+    Type: Ongoing
+    ! POST /events {name: "House Bills Feb", event_type: "ongoing"}
+    ! event created as ongoing -- no natural end point
 S05 → taps "People ▸"
 S07 Manage People → adds Alice, Bob
     ⚡ POST /events/{eid}/persons × 2
@@ -88,3 +90,7 @@ S12 Settle Up → suggested:
 > **Anti-pattern:** If someone assigned all 3 to a shared settlement group,
 > all individual debts would be erased — Bob wouldn't owe anything.
 > The UI prevents this by making singleton PFGs the default.
+
+## Ongoing Event Behaviour (E1)
+
+Because this event is `event_type: ongoing`, it doesn't close after settlement. Next month, Frank creates new expenses in the same event. Balances carry forward. The event remains open indefinitely, with periodic settlement cycles.

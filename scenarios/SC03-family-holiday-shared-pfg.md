@@ -34,6 +34,8 @@ S07 → taps Alice's row → "Change Settlement Group"
     → Alice now shows 🔵 Alice & Partner
 ```
 
+**Simplified with singleton auto-group (I3):** If Alice adds Carol directly to her singleton group instead of creating a new group first, the backend auto-creates a new non-singleton group with both members. Alice's original singleton remains untouched. This reduces the PFG setup from 4 steps to 2 (add member + reassign PFG).
+
 People list now shows:
 
 ```

@@ -71,3 +71,19 @@ If Alice created a personal invite for Bob's placeholder:
        → Bob linked to existing placeholder (no duplicate person)
        → resolution_status: claimed
 ```
+
+## Variant: Self-Merge After Join (I1, I2)
+
+If Alice pre-created a placeholder "Bob" and Bob joins without a personal invite:
+
+```
+Bob joins -> auto_created person "Bob" created alongside placeholder "Bob"
+Bob's S05 Dashboard:
+    -> "We found a match!" banner (from GET /events/{eid}/persons/my-matches)
+    -> "Bob" placeholder matches Bob's display name (medium confidence)
+    -> taps [This is me]
+    ! POST /events/{eid}/persons/{placeholder_id}/merge {target_person_id: bob_person_id}
+       -> authorize_self_merge() validates: source is placeholder, target belongs to Bob, names match
+       -> merge executes: splits transferred, placeholder removed
+       -> no admin intervention needed
+```

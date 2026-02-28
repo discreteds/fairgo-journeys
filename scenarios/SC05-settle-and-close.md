@@ -70,6 +70,7 @@ Alice closes the event:
 S05 → ⚙️ Event Settings → [Close Event]
     Confirm: "Close this event? No more expenses or settlements can be added."
     ⚡ POST /events/{eid}/close
+    -> activity recorded: "Closed event: Bali Trip" (visible in S17 Activity feed)
 S03 Home → event shows as closed/archived with muted styling
 ```
 
@@ -91,3 +92,20 @@ S12 shows the status flow clearly:
   ✅ Confirmed   → [Mark as Paid] (payer or admin)
   💰 Paid        → (done, no actions)
 ```
+
+## Variant: Voiding a Settlement (F1)
+
+If Alice confirms a settlement but then realises the amount is wrong:
+
+```
+S12 -> Alice taps [Void] on the confirmed settlement
+    ! POST /events/{eid}/settlements/{sid}/void
+    -> status: voided (preserved in history)
+    -> positions recalculate (voided settlement excluded)
+
+S12 -> Alice creates a corrected settlement
+    ! POST /events/{eid}/settlements (with correct amount)
+    -> new settlement: proposed
+```
+
+Voided settlements remain visible in the history but are excluded from balances and suggestions. Only proposed and confirmed settlements can be voided — paid settlements cannot.
