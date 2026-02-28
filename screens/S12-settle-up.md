@@ -59,14 +59,30 @@
 │  └──────────────────────────┘│
 ```
 
+Admin can void proposed or confirmed settlements:
+
+```
+|  | Alice & Partner             ||
+|  | -> Frank  $142.50           ||
+|  | Status: ⏳ Proposed          ||
+|  | [Confirm]  [Void]           || <- admin only
+```
+
 ## Settlement Status Flow
 
 ```
-proposed ──────→ confirmed ──────→ paid
-    │                │               │
- [Confirm]      [Mark Paid]      (done)
- admin only     payer or admin
+proposed -----> confirmed -----> paid
+    |               |
+    +--- voided <---+
+
+[Confirm]       [Mark Paid]     (done)
+admin only      payer or admin
+
+[Void]          [Void]
+admin only      admin only
 ```
+
+Voided settlements are preserved for audit but excluded from positions and settlement suggestions.
 
 ## Orchestration — Page Load
 
@@ -98,6 +114,16 @@ POST /events/{eid}/settlements/{sid}/confirm
 POST /events/{eid}/settlements/{sid}/pay
 → status: paid
 ```
+
+## Orchestration — "Void" (Admin)
+
+```
+POST /events/{eid}/settlements/{sid}/void
+-> status: voided
+-> positions recalculate (voided settlement excluded)
+```
+
+Only proposed and confirmed settlements can be voided. Paid settlements cannot be voided.
 
 ## Smart Defaults
 
