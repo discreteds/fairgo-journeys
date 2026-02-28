@@ -62,46 +62,33 @@
 
 ## Data Source
 
-**The backend does not currently have a notifications/activity endpoint.** This screen must be implemented using one of two approaches:
-
-### Approach A: Client-Side Derived (MVP)
-
-Aggregate activity from existing endpoints and sort by timestamp:
+The backend activity feed endpoint is implemented:
 
 ```
-For each event the user belongs to:
-  GET /events/{eid}/transactions    → new expenses (created_at)
-  GET /events/{eid}/settlements     → settlement activity (created_at, updated_at)
-  GET /events/{eid}/event-roles     → role changes (created_at, updated_at)
+GET /users/me/activity?limit=50&offset=0
+-> returns unified, chronological activity feed across all events the user participates in
 ```
 
-**Pros:** No backend changes needed.
-**Cons:** Expensive (N events × 3 calls), no push notifications, may miss some activity types.
+Single call. Activities are recorded server-side when key actions occur (transaction creation, settlement status changes, person merges, event closures, role changes). Pagination via `limit` and `offset` query parameters.
 
-### Approach B: Backend Activity Endpoint (Future)
+### Superseded: Client-Side Derived (Approach A)
 
-```
-GET /users/me/activity?since={timestamp}&limit=50
-→ returns unified activity feed across all events
-```
-
-**Pros:** Single call, efficient, supports push notifications.
-**Cons:** Requires new backend endpoint + activity logging infrastructure.
-
-**Recommendation:** Start with Approach A for MVP. Add backend endpoint when activity feed becomes a priority.
+The original MVP approach of aggregating from N x 3 endpoint calls per event is no longer needed. The backend activity endpoint replaces it entirely.
 
 ## Activity Types
 
-| Type | Icon | Template |
-|------|------|----------|
-| Expense added | 💰 | "{person} added {description} ${amount}" |
-| Expense approved | ✅ | "{description} was approved" |
-| Settlement created | 📤 | "{from} settling ${amount} with {to}" |
-| Settlement confirmed | ✅ | "Settlement confirmed: {from} → {to}" |
-| Settlement paid | 💰 | "{from} paid ${amount} to {to}" |
-| Role approved | 🎉 | "You were approved for {event}" |
-| Person joined | 👋 | "{person} joined {event}" |
-| Event created | 🆕 | "{person} created {event}" |
+| Type | Backend `activity_type` | Template |
+|------|------------------------|----------|
+| Expense added | `transaction_created` | "{summary}" |
+| Expense cancelled | `transaction_cancelled` | "{summary}" |
+| Settlement confirmed | `settlement_confirmed` | "{summary}" |
+| Settlement paid | `settlement_paid` | "{summary}" |
+| Settlement voided | `settlement_voided` | "{summary}" |
+| Person merged | `person_merged` | "{summary}" |
+| Event closed | `event_closed` | "{summary}" |
+| Role changed | `role_changed` | "{summary}" |
+
+Each activity record includes: `id`, `user_id`, `event_id`, `activity_type`, `entity_type`, `entity_id`, `summary`, `created_at`.
 
 ## Actions
 
@@ -117,6 +104,6 @@ GET /users/me/activity?since={timestamp}&limit=50
 - Tapping any item navigates to the relevant event
 - Badge count on bottom nav tab shows unread items (since last visit)
 
-## Implementation Priority
+## Implementation Status
 
-This is a **low-priority screen** for MVP. The S05 Event Dashboard already surfaces the most important activity (recent expenses, pending actions) per event. S17 adds cross-event visibility but isn't critical for core workflows. Consider deferring to post-MVP.
+Backend endpoint implemented (2026-02-28). `GET /users/me/activity` returns paginated activity feed. Activity records written on all key lifecycle events. Frontend integration pending.
