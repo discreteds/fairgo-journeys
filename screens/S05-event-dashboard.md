@@ -5,7 +5,7 @@
 **Rails:** R01, R02, R03, R04, R05, R06 (all rails pass through here)
 **Scenarios:** All
 
-This is the most important screen in the app. Every journey passes through it. Its load-time orchestration (6 parallel API calls) is the most performance-critical path.
+This is the most important screen in the app. Every journey passes through it. Its load-time orchestration (7 parallel API calls) is the most performance-critical path.
 
 ## Wireframe — Member View
 
@@ -110,6 +110,20 @@ When a member has joined but not yet been approved:
 └──────────────────────────────┘
 ```
 
+## Wireframe — Self-Merge Prompt (Member View)
+
+When `GET /events/{eid}/persons/my-matches` returns a match for the current user:
+
+```
+|  +----------------------------+|
+|  | We found a match!          ||
+|  | "Dave" looks like you.     ||
+|  | [This is me]  [Not me]     ||
+|  +----------------------------+|
+```
+
+Tapping "This is me" calls `POST /events/{eid}/persons/{placeholder_id}/merge` with the user's person as target. `authorize_self_merge()` validates the match (email or display name).
+
 ## Orchestration — Page Load
 
 ```
@@ -119,8 +133,9 @@ When a member has joined but not yet been approved:
 4. GET /events/{eid}/positions       → PFG positions + checksum
 5. GET /events/{eid}/settlements     → settlement list + count
 6. GET /events/{eid}/event-roles     → pending approvals (admin only)
+7. GET /events/{eid}/persons/my-matches  -> match suggestions for current user (member only)
 
-Calls 2-6 parallelised after call 1 returns event metadata.
+Calls 2-7 parallelised after call 1 returns event metadata.
 ```
 
 ## Actions
@@ -137,6 +152,7 @@ Calls 2-6 parallelised after call 1 returns event metadata.
 | Invite Link 📋 | All | Clipboard | Copy default invite URL (quick access) |
 | Approve role (inline) | Admin | Stay on S05 | `POST /events/{eid}/event-roles/{rid}/approve` |
 | Reject role (inline) | Admin | Stay on S05 | `POST /events/{eid}/event-roles/{rid}/remove` |
+| This is me (self-merge) | Member | Stay on S05 | `POST /events/{eid}/persons/{source_id}/merge` |
 | Review transaction | Admin | → S10 | Navigation |
 | Event Settings ▸ | Admin | Edit modal | `PUT /events/{eid}` |
 | Funding Status ▸ | Admin | → S14 | Navigation |
