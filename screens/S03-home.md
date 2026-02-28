@@ -66,12 +66,10 @@
 ## Orchestration — Page Load
 
 ```
-1. GET /events                    → event list
-2. For each event (parallelised):
-   GET /events/{eid}/positions    → net position for current user's PFG
+1. GET /events?include=my_position   → event list with embedded position summaries
 ```
 
-The position call per event provides the "You owe $X" / "You're owed $X" summary. For performance, this could be a future aggregate endpoint.
+Each event includes a `my_position` object with `person_id`, `total_paid`, `total_consumed`, and `net`. This eliminates the per-event position call. For events where the user has no person, `my_position` is null.
 
 ## Orchestration — "+ New Event"
 
@@ -100,6 +98,8 @@ The position call per event provides the "You owe $X" / "You're owed $X" summary
 - Net position shown as "You owe $X" (red) or "You're owed $X" (green) — derived from user's PFG net position
 - "All settled ✓" badge when user's PFG net = $0.00
 - Closed events shown at bottom with muted styling
+- Ongoing events (`event_type: ongoing`) show running balance without "All settled" badge — they don't have a natural end point
+- Singular events (`event_type: singular`) show completion badge when all settled
 - Events with pending approval show "⏳ Awaiting approval" badge
 
 ## Error States
