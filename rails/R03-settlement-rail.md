@@ -27,11 +27,18 @@ S05 Event Dashboard → "All settled ✓" badge
 ## Status Flow
 
 ```
-proposed ──────→ confirmed ──────→ paid
-    │                │               │
- [Confirm]      [Mark Paid]      (done)
- admin only     payer or admin
+proposed -----> confirmed -----> paid
+    |               |
+    +--- voided <---+
+
+[Confirm]       [Mark Paid]     (done)
+admin only      payer or admin
+
+[Void]          [Void]
+admin only      admin only
 ```
+
+Voided settlements are preserved for audit but excluded from positions and settlement suggestions.
 
 ## Transfer Points
 
