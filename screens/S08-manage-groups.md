@@ -59,7 +59,7 @@ The screen visually separates two types of groups:
 │                              │
 │  [Save Changes]              │
 │                              │
-│  [Delete Group]              │
+│  [Archive Group]             │
 └──────────────────────────────┘
 ```
 
