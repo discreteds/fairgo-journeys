@@ -48,7 +48,7 @@ What admin sees vs what member sees on every screen.
 | Group member list | ✅ Visible | ✅ Visible |
 | + New Group button | ❌ Hidden | ✅ Visible |
 | Edit group members | ❌ Hidden | ✅ Visible (checkbox toggles) |
-| Delete group | ❌ Hidden | ✅ Visible |
+| Archive group | ❌ Hidden | ✅ Visible |
 
 ### S09 — Add Expense
 
@@ -70,7 +70,7 @@ Both roles can add expenses. The difference is what happens after — member-cre
 | [Edit] button | ❌ Hidden | ✅ Visible |
 | [Approve] button | ❌ Hidden | ✅ Visible (when pending) |
 | [Request Changes] | ❌ Hidden | ✅ Visible (when pending) |
-| [Delete] button | ❌ Hidden | ✅ Visible |
+| [Cancel] button | ❌ Hidden | ✅ Visible |
 
 ### S11 — Balances
 
@@ -88,6 +88,7 @@ No admin-specific elements. Balances are the same for everyone.
 | Suggested settlements | ✅ Visible | ✅ Visible |
 | Create Settlement | ✅ Enabled | ✅ Enabled |
 | [Confirm] button | ❌ Hidden | ✅ Visible (on proposed settlements) |
+| [Void] button | ❌ Hidden | ✅ Visible (on proposed/confirmed) |
 | [Mark as Paid] button | ✅ Own PFG only | ✅ Any settlement |
 
 ### S14 — Event Funding

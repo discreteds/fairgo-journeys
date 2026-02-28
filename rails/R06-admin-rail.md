@@ -34,8 +34,8 @@ S05 Event Dashboard
   │       │
   │       ├── Create consumption groups
   │       │     ⚡ POST /groups + POST /groups/{gid}/members
-  │       └── Edit/delete groups
-  │             ⚡ PUT/DELETE /groups/{gid}
+  │       └── Edit/archive groups
+  │             ⚡ POST /groups/{gid}/archive
   │
   └──→ S14 Event Funding
           │
