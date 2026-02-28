@@ -53,13 +53,10 @@
 
 ```
 1. GET /events/{eid}/transactions/{tid}
-   → transaction metadata (description, date, status, currency)
-2. GET /events/{eid}/transactions/{tid}/line-items
-   → line item list
-3. For each line item (parallelised):
-   GET /events/{eid}/line-items/{lid}/splits
-   → per-person splits (expense + consumption sides)
+   -> full transaction tree: metadata + line items + computed splits (shares, effective weights)
 ```
+
+Single call. The transaction endpoint always returns embedded `line_items` with computed `splits` per line item.
 
 ## Orchestration — "Edit" (Admin)
 
@@ -84,13 +81,17 @@ Opens S09-style edit form pre-filled with existing data:
 2. Refresh status display → ✅ Approved
 ```
 
-## Orchestration — "Delete" (Admin)
+## Orchestration — "Cancel" (Admin)
 
 ```
-1. Confirm dialog: "Delete this expense? This will update everyone's balances."
-2. DELETE /events/{eid}/transactions/{tid}
-3. → S05 (event dashboard)
+1. Confirm dialog: "Cancel this expense? It will be excluded from balances but preserved for records."
+2. POST /events/{eid}/transactions/{tid}/cancel
+   -> status: cancelled
+   -> positions recalculate (cancelled transactions excluded)
+3. Refresh detail view -> shows cancelled badge
 ```
+
+Cancelled transactions are soft-deleted (status-based). They are excluded from position calculations and list views by default but preserved for audit. Hard deletion is only available for already-cancelled transactions.
 
 ## Smart Defaults
 
@@ -99,11 +100,12 @@ Opens S09-style edit form pre-filled with existing data:
 - Breakdown shows per-person net: paid minus consumed
 - [Edit] button only visible to admin
 - Members see a read-only view (or "Suggest Change" for modification requests — future feature)
-- Status badge colour: ✅ green (approved), ⏳ amber (pending), ❌ red (rejected)
+- Status badge colour: ✅ green (approved), ⏳ amber (pending), ❌ red (cancelled)
 
 ## Error States
 
 | Error | Display |
 |-------|---------|
 | Transaction not found | "This expense has been deleted" → S05 |
+| Transaction cancelled | "This expense has been cancelled" with muted styling, no edit actions |
 | Edit conflicts | "This expense was modified by someone else. Refresh to see changes." |
