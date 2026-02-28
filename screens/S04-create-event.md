@@ -8,33 +8,34 @@
 ## Wireframe
 
 ```
-┌─────────────────────────┐
-│  ← New Event            │
-├─────────────────────────┤
-│                         │
-│  Event Name    [______] │
-│  Description   [______] │
-│  Currency      [AUD ▾]  │
-│                         │
-│  ┌───────────────────┐  │
-│  │   Create Event    │  │
-│  └───────────────────┘  │
-└─────────────────────────┘
++-----------------------------+
+|  <- New Event               |
++-----------------------------+
+|                             |
+|  Event Name    [______]     |
+|  Description   [______]     |
+|  Currency      [AUD v]      |
+|  Type    (*) One-off        |
+|          ( ) Ongoing        |
+|                             |
+|  +---------------------+   |
+|  |   Create Event       |   |
+|  +---------------------+   |
++-----------------------------+
 ```
 
 ## Orchestration — "Create Event"
 
 ```
-1. POST /events {name, description, currency}
-   → event created
-   → user gets admin event_role (auto)
-   → user's person auto-created with display_name from profile
-2. POST /events/{eid}/invite-codes {max_uses: null}
-   → default shareable invite code generated
-3. → S05 (event dashboard)
+1. POST /events {name, description, currency, event_type, visibility}
+   -> event created (event_type defaults to "singular", visibility defaults to "public")
+   -> user gets admin event_role (auto)
+   -> user's person auto-created with display_name from profile
+   -> default shareable invite code auto-generated
+2. -> S05 (event dashboard)
 ```
 
-The backend auto-creates the user's person on event creation. The frontend auto-generates a shareable invite code so the admin can immediately share it. Two calls, but the user only filled one form.
+The backend auto-creates the user's person and invite code on event creation. The frontend sends one call; the user filled one form.
 
 ## Smart Defaults
 
@@ -43,6 +44,8 @@ The backend auto-creates the user's person on event creation. The frontend auto-
 | Event Name | (required, focused) | — |
 | Description | (optional, empty) | Free text |
 | Currency | AUD (locale-detected) | Dropdown of supported currencies |
+| Event Type | singular (One-off) | Toggle: One-off / Ongoing |
+| Visibility | public | Not shown on creation — available in event settings |
 
 - Single required field: event name
 - Description is optional — most casual events don't need one
