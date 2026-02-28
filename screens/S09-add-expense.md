@@ -129,6 +129,8 @@ When "Custom weights" is selected for a line item:
 
 Live-calculated shares update as weights change.
 
+Weights are integers (1, 2, etc). The modifier field (not shown by default) allows fractional adjustments: 0.5 = half share (child discount), 1.5 = 150% share (surcharge). Modifier range: 0.0-2.0.
+
 ## Orchestration — "Save Expense" (Split-Pending, ≤1 Person)
 
 When the event has ≤1 person, the expense is saved without splits:
@@ -242,7 +244,7 @@ This generates multiple `side: "expense"` splits with weights proportional to am
 - Groups appear as named shortcuts in the "Split between" picker
 - Multi-line-item is opt-in, not forced
 - "Custom weights" shows live-calculated shares as weights are adjusted
-- Modifier field is hidden (always 1.0) — available as future feature for child/dietary adjustments
+- Modifier field is hidden by default (1.0); backend accepts 0.0-2.0. Values >1.0 represent surcharges (e.g. 1.5 = pays 150% share). Surface in UI for "advanced splitting" scenarios (dietary adjustments, service charges).
 
 ## Error States
 
