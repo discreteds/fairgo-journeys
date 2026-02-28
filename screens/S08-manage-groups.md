@@ -94,13 +94,16 @@ Groups where a person's PFG points to them are settlement groups. All others are
 4. Refresh group detail
 ```
 
-## Orchestration — Delete Group (Admin)
+## Orchestration — Archive Group (Admin)
 
 ```
-1. Confirm dialog: "Delete 'Drinkers'? This won't affect existing expenses."
-2. DELETE /events/{eid}/groups/{gid}
+1. Confirm dialog: "Archive 'Drinkers'? This won't affect existing expenses."
+2. POST /events/{eid}/groups/{gid}/archive
+   -> group status set to "archived", excluded from lists by default
 3. Refresh group list
 ```
+
+Archived groups are preserved for audit. Hard deletion is only available for already-archived groups via `DELETE /events/{eid}/groups/{gid}`.
 
 ## Smart Defaults
 
@@ -119,4 +122,4 @@ The backend supports `GET /events/{eid}/groups/{gid}/expand` which returns sugge
 |-------|---------|
 | Group limit reached (unfunded) | "This event needs funding to add more groups" → S14 |
 | Delete group with active splits | Backend allows this — splits reference persons, not groups |
-| Add member to singleton group | Blocked by backend — "Can't add members to a solo group" |
+| Add member to singleton group | Backend auto-creates a new shared group with both members. Original singleton remains as-is. |
