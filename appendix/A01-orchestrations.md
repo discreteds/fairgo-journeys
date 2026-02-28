@@ -28,7 +28,7 @@ Every place in the UI where a single user action triggers one or more backend ca
 | Add multi-item expense | S09 | Fill rows + save | Same single `POST /transactions` with array of line_items (1 call) |
 | Edit expense | S10 | Edit form | `PUT /transactions` + `PUT /line-items` + split updates (3+ calls) |
 | Approve expense | S10 | 1 tap | `POST /transactions/{tid}/approve` (1 call) |
-| Delete expense | S10 | Confirm + tap | `DELETE /transactions/{tid}` (1 call) |
+| Cancel expense | S10 | Confirm + tap | `POST /transactions/{tid}/cancel` (1 call) |
 
 ### People Management
 
@@ -49,7 +49,7 @@ Every place in the UI where a single user action triggers one or more backend ca
 |-----------|--------|-----------|---------------|
 | Create group | S08 | Name + pick members | `POST /groups` + `POST /groups/{gid}/members` × N (1+N calls) |
 | Edit group members | S08 | Toggle checkboxes | `POST` or `DELETE /groups/{gid}/members` per change |
-| Delete group | S08 | Confirm + tap | `DELETE /groups/{gid}` (1 call) |
+| Archive group | S08 | Confirm + tap | `POST /groups/{gid}/archive` (1 call) |
 
 ### Prepare & Share (Invitation)
 
@@ -68,6 +68,7 @@ Every place in the UI where a single user action triggers one or more backend ca
 | Create settlement | S12 | 1 tap on suggestion | `POST /settlements` (1 call) |
 | Confirm settlement | S12 | 1 tap | `POST /settlements/{sid}/confirm` (1 call) |
 | Mark settlement paid | S12 | 1 tap | `POST /settlements/{sid}/pay` (1 call) |
+| Void settlement | S12 | Confirm + tap | `POST /settlements/{sid}/void` (1 call) |
 
 ### Funding
 
@@ -96,12 +97,12 @@ Every place in the UI where a single user action triggers one or more backend ca
 
 | Screen | Calls | Can Parallelise? | Notes |
 |--------|-------|-----------------|-------|
-| S03 Home | 1 + N (events + positions per event) | Yes (positions parallel) | Most expensive for users with many events |
+| S03 Home | 1 (`GET /events?include=my_position`) | N/A | Position embedded in event response (P1) |
 | S05 Dashboard | 6 | Yes (5 parallel after event load) | Most critical — every journey passes through |
 | S06 Prepare & Share | 2 | Yes | Persons + invite-codes |
-| S07 People | 3 (persons with PFG + groups) | Yes | ~~N+1 resolved~~ — `_person_to_dict()` embeds PFG in person response |
+| S07 People | 2 (persons with embedded PFG + groups) | Yes | PFG embedded in person response; `my-matches` for member view |
 | S08 Groups | 2 | Yes | Lightweight |
-| S10 Expense Detail | 3 + N (txn + line items + splits per item) | Yes | Could benefit from enriched transaction endpoint |
+| S10 Expense Detail | 1 (`GET /transactions/{tid}` with embedded line items + splits) | N/A | Full tree in single response (P2) |
 | S11 Balances | 1 | N/A | Positions endpoint returns everything |
 | S12 Settle Up | 2 | Yes | Positions + settlements |
 | S13 Membership | 1 | N/A | Single endpoint |
@@ -167,10 +168,8 @@ Backend steps:
 
 ## Backend API Gaps for UI Optimisation
 
-These are not bugs but potential future optimisations:
-
-1. **Enriched events list** — `GET /events` with embedded position summaries would eliminate N+1 on S03
-2. ~~**Enriched persons**~~ — RESOLVED: `_person_to_dict()` already embeds PFG data (group_id, group_name, is_singleton) in person responses
-3. **Enriched transactions** — `GET /transactions/{tid}` with embedded line items and splits would reduce S10 to 1 call
-4. **Activity feed endpoint** — `GET /users/me/activity` would make S17 viable without N×3 calls
-5. **Bulk invite codes** — `POST /invite-codes/bulk` would reduce S06 "Create All Links" from N calls to 1
+1. ~~**Enriched events list**~~ — **RESOLVED (P1):** `GET /events?include=my_position` embeds position summaries. S03 loads with 1 call.
+2. ~~**Enriched persons**~~ — **RESOLVED:** `_person_to_dict()` embeds PFG data. S07 loads with 2 calls.
+3. ~~**Enriched transactions**~~ — **RESOLVED (P2):** `GET /transactions/{tid}` returns full tree (line items + computed splits). S10 loads with 1 call.
+4. ~~**Activity feed endpoint**~~ — **RESOLVED (P3):** `GET /users/me/activity` returns paginated cross-event feed. S17 loads with 1 call.
+5. **Bulk invite codes** — `POST /invite-codes/bulk` would reduce S06 "Create All Links" from N calls to 1. Deferred to post-MVP.
