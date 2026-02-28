@@ -172,11 +172,12 @@ When there are multiple affected expenses, a "Review All Splits" action appears:
 ## Orchestration — Page Load
 
 ```
-1. GET /events/{eid}/persons         → person list with resolution_status
-2. For each person (parallelised):
-   GET /events/{eid}/persons/{pid}/pfg → PFG (settlement group) info
-3. GET /events/{eid}/groups          → group list for settlement group names
+1. GET /events/{eid}/persons         -> person list with resolution_status and embedded PFG
+2. GET /events/{eid}/groups          -> group list for settlement group names
+3. GET /events/{eid}/persons/my-matches -> match suggestions (member view only)
 ```
+
+PFG data (group_id, group_name, is_singleton) is embedded in each person response via `_person_to_dict()`. No per-person PFG call needed.
 
 ## Orchestration — "Add Person" (Admin)
 
@@ -241,6 +242,8 @@ When a potential match is shown:
      - display_name matches (case-insensitive)
 2. Refresh person list
 ```
+
+Self-merge routing verified: non-admin members reach `authorize_self_merge()` via the try/except in the merge endpoint. The route-level auth (`require_event_role()`) permits members. Integration tested (Gap I2).
 
 ## Orchestration — "Change Settlement Group"
 
