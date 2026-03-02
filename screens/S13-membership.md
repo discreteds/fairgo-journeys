@@ -16,7 +16,7 @@
 │  ┌──────────────────────────┐│
 │  │  FREE                    ││
 │  │  No event slots          ││
-│  │  Pay $4.99 per event     ││
+│  │  Pay $2 per event     ││
 │  └──────────────────────────┘│
 │                              │
 │  Upgrade                     │
@@ -111,7 +111,7 @@ PUT /memberships/me
 
 | Feature | Free | Standard | Premium |
 |---------|------|----------|---------|
-| Per-event fee | $4.99 | $4.99 | $4.99 |
+| Per-event fee | $2 | $2 | $2 |
 | One-off slots/month | 0 | 5 | 20 |
 | Ongoing slots/month | 0 | 2 | 10 |
 | Monthly price | $0 | $9.99 | $19.99 |

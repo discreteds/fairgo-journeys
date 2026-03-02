@@ -33,9 +33,9 @@ S14 Event Funding
 
     Options:
     ○ Use subscription slot (0 available — Dave is free tier)
-    ● Pay $4.99 one-time
+    ● Pay $2 one-time
 
-    → selects $4.99 → taps [Fund Event]
+    → selects $2 → taps [Fund Event]
     ⚡ POST /events/{eid}/funding {funding_type: "per_event_fee"}
     → Status: ✅ Funded
     → Limits: 50 transactions, 500 line items, 20 groups, 50 participants, settlements enabled
@@ -44,10 +44,10 @@ S14 Event Funding
 Dave sees the cost spread option:
 
 ```
-S14 → "Spread the $4.99 fee across all 5 participants ($1.00 each)?"
+S14 → "Spread the $2 fee across all 5 participants ($1.00 each)?"
     → taps [Spread Costs]
     ⚡ POST /events/{eid}/funding/cost-spread
-    → line item created spreading $4.99 across 5 people
+    → line item created spreading $2 across 5 people
     → Cost Spread: ✅ Active
 ```
 

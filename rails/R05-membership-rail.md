@@ -21,7 +21,7 @@ S05 Event Dashboard
   │ admin sees "⚠️ Unfunded" or "💳 Funding Status ▸"
   ▼
 S14 Event Funding
-  │ [Fund Event] (slot or $4.99)
+  │ [Fund Event] (slot or $2)
   ▼
 S14 Event Funding → funded
   │ [Spread Costs] (optional)

@@ -48,7 +48,7 @@ S04 → "Weekend Hike"
     ⚡ POST /events → created (event creation is always free)
 S14 Event Funding
     → ○ Use subscription slot — ⚠️ No slots available
-    → ● Pay $4.99 one-time
+    → ● Pay $2 one-time
     → [Upgrade your plan →] link to S13
 
     Current usage:
@@ -61,7 +61,7 @@ S14 Event Funding
 Frank falls back to per-event fee:
 
 ```
-S14 → selects $4.99 per-event fee
+S14 → selects $2 per-event fee
     ⚡ POST /events/{eid}/funding {funding_type: "per_event_fee"}
     → funded ✓
     → anti-profiteering cap: per-event fee never exceeds subscription equivalent

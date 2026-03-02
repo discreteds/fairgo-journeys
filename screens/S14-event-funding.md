@@ -29,7 +29,7 @@
 │  │   3 one-off slots left   ││
 │  │   1 ongoing slot left    ││
 │  │                          ││
-│  │ ● Pay $4.99 one-time     ││
+│  │ ● Pay $2 one-time     ││
 │  │   No subscription needed ││
 │  │                          ││
 │  │  [Fund Event]            ││
@@ -55,7 +55,7 @@
 │                              │
 │  Cost Spread                 │
 │  ┌──────────────────────────┐│
-│  │ Spread the $4.99 fee     ││
+│  │ Spread the $2 fee     ││
 │  │ across all 6 participants ││
 │  │ ($0.83 each)?            ││
 │  │                          ││
@@ -69,7 +69,7 @@
 │  ── after spreading ──       │
 │                              │
 │  Cost Spread: ✅ Active       │
-│  $4.99 split across 6 people │
+│  $2 split across 6 people │
 │  ($0.83 per person)          │
 └──────────────────────────────┘
 ```
@@ -112,7 +112,7 @@ POST /events/{eid}/funding
 ```
 POST /events/{eid}/funding/cost-spread
   {spread_to: "all_participants"}
-→ line item created in a system transaction, spreading $4.99
+→ line item created in a system transaction, spreading $2
   across all event participants as consumption splits
 ```
 
@@ -135,7 +135,7 @@ GET /memberships/me
 - Per-event fee pre-selected if user has no subscription slots available
 - Subscription slot pre-selected if user has available slots
 - Cost spread shown immediately after funding — natural next step
-- Cost spread amount capped at per-event fee ($4.99) to prevent profiteering
+- Cost spread amount capped at per-event fee ($2) to prevent profiteering
 - Slot type explanation is inline — users don't need to understand the quota model in depth
 - Ongoing vs one-off guidance: "Use ongoing for events that will last a while (trips). Use one-off for single-day events (dinners)."
 
