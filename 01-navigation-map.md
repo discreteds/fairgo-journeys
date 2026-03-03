@@ -63,10 +63,13 @@ Master view of how all screens connect and which journey rails traverse them.
                                      └── "Use Template" → S04 → S05
 
     Bottom Nav: [S03 Events] [S17 Activity] [S15 Profile]
-                                                │
-                                                ▼
-                                              S13
-                                            Membership
+                                  │           │
+                                  │           ▼
+                                  │         S13
+                                  │       Membership
+                                  │           │
+                                  └───────────┘
+                              (governance vote notifications)
 ```
 
 ## Screen Inventory
@@ -137,15 +140,15 @@ Expenses and people are equally accessible from S05 in either order. The above i
 | S10 Expense Detail | SC02, SC05, SC08, SC11, SC12, SC19 | R02, R06, R07 | 3 |
 | S11 Balances | SC03, SC04, SC05, SC11, SC13, SC17, SC18, SC25 | R02, R03, R09 | 1 |
 | S12 Settle Up | SC03, SC04, SC05, SC13, SC17, SC18, SC24, SC25 | R03, R09 | 3 (positions + settlements + suggestions) |
-| S13 Membership | SC06, SC10 | R05 | 1 |
-| S14 Event Funding | SC06, SC10 | R05, R06 | 1 |
+| S13 Membership | SC06, SC10, SC26, SC27 | R05 | 1 (solo), 3 (shared) |
+| S14 Event Funding | SC06, SC10, SC28 | R05, R06 | 1 (+ suggest for multi-membership) |
 | S15 Profile | SC09 | R05 | 2 |
 | S16 Admin Moderation | SC02, SC08, SC12 | R06, R07 | 3 |
-| S17 Activity | SC09 | — | 1 (`GET /users/me/activity`) |
+| S17 Activity | SC09, SC27 | R05 | 1 (`GET /users/me/activity`) |
 | S18 Invite Landing | SC02 | R04 | 1 (invite preview) |
 | S19 My Templates | SC23 | R08 | 1 (`GET /templates`) |
 
-### SC07–SC25 Coverage
+### SC07–SC28 Coverage
 
 | Scenario | Name | Screens Referenced |
 |----------|------|--------------------|
@@ -162,6 +165,9 @@ Expenses and people are equally accessible from S05 in either order. The above i
 | SC23 | Template Lifecycle | S03, S04, S05, S19 |
 | SC24 | Ongoing Bookmarked Settlement | S04, S05, S09, S11, S12 |
 | SC25 | Dinner Decomposition Pipeline | S05, S09, S11, S12 |
+| SC26 | Couple Shared Membership | S05, S13, S14, S15, S17 |
+| SC27 | Membership Governance | S13, S17 |
+| SC28 | Smart Funding Suggestion | S05, S13, S14 |
 
 ### Observations
 

@@ -61,6 +61,9 @@
   - [SC23 Template Lifecycle](/scenarios/SC23-template-lifecycle.md)
   - [SC24 Ongoing Bookmarked Settlement](/scenarios/SC24-ongoing-bookmarked-settlement.md)
   - [SC25 Dinner Decomposition Pipeline](/scenarios/SC25-dinner-decomposition-pipeline.md)
+  - [SC26 Couple Shared Membership](/scenarios/SC26-couple-shared-membership.md)
+  - [SC27 Membership Governance](/scenarios/SC27-membership-governance.md)
+  - [SC28 Smart Funding Suggestion](/scenarios/SC28-smart-funding-suggestion.md)
 
 - **Journey Rails**
   - [R01 Onboarding Rail](/rails/R01-onboarding-rail.md)

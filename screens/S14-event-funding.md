@@ -3,7 +3,7 @@
 **Purpose:** Fund an event to unlock full features. Manage cost spread.
 **Visible to:** Admin only.
 **Rails:** R05 (Membership & Funding), R06 (Admin)
-**Scenarios:** SC06, SC10
+**Scenarios:** SC06, SC10, SC28
 
 ## Wireframe — Unfunded Event
 
@@ -91,6 +91,40 @@ When "Use subscription slot" is selected:
 │  └──────────────────────────┘│
 ```
 
+## Wireframe — Membership Suggestion
+
+When the user has multiple memberships (solo + shared), the funding screen shows a ranked suggestion list before the slot type selection.
+
+```
+┌──────────────────────────────┐
+│  ← Funding · Weekend BBQ     │
+├──────────────────────────────┤
+│                              │
+│  Use Subscription Slot       │
+│                              │
+│  Recommended Membership      │
+│  ┌──────────────────────────┐│
+│  │ ⭐ Household (shared)     ││
+│  │   2/6 participant overlap ││
+│  │   8 one-off slots left   ││
+│  │   Ceiling: 2 remaining   ││
+│  │   [Use This] ← recommended││
+│  ├──────────────────────────┤│
+│  │   Solo Standard          ││
+│  │   1/6 participant overlap ││
+│  │   2 one-off slots left   ││
+│  │   [Use This]             ││
+│  └──────────────────────────┘│
+│                              │
+│  ── or ──                    │
+│                              │
+│  ● Pay $2 one-time        ││
+│    No subscription needed    │
+│                              │
+│  [Fund Event]                │
+└──────────────────────────────┘
+```
+
 ## Orchestration — "Fund Event" (Per-Event Fee)
 
 ```
@@ -103,8 +137,10 @@ POST /events/{eid}/funding
 
 ```
 POST /events/{eid}/funding
-  {funding_type: "subscription_slot", slot_type: "one_off"}
-→ slot consumed from user's membership quota, event funded
+  {funding_type: "subscription_slot", slot_type: "one_off", membership_id: "..."}
+→ slot consumed from membership quota, event funded
+→ membership_id required when user has multiple memberships
+→ omit membership_id to use default (solo) membership
 ```
 
 ## Orchestration — "Spread Costs"
@@ -146,6 +182,28 @@ GET /memberships/me
 → returns: available slots for the subscription option display
 ```
 
+## Orchestration — Smart Suggestion
+
+```
+GET /events/{eid}/funding/suggest
+→ returns: ranked list of user's memberships with:
+   [{membership_id, name, type (solo/shared), overlap_count, overlap_ratio,
+     one_off_remaining, ongoing_remaining, ceiling_remaining,
+     recommended: true/false}, ...]
+→ ranking: overlap_ratio → quota_remaining → recency → alphabetical
+```
+
+## Orchestration — Fund from Shared Membership
+
+```
+POST /events/{eid}/funding
+  {funding_type: "subscription_slot", slot_type: "one_off",
+   membership_id: "shared-membership-id"}
+→ slot consumed from shared membership pool
+→ counts against funding user's per-member ceiling
+→ 409 if ceiling exceeded, 409 if shared pool exhausted
+```
+
 ## Smart Defaults
 
 - Per-event fee pre-selected if user has no subscription slots available
@@ -154,6 +212,8 @@ GET /memberships/me
 - Cost spread amount capped at per-event fee ($2) to prevent profiteering
 - Slot type explanation is inline — users don't need to understand the quota model in depth
 - Ongoing vs one-off guidance: "Use ongoing for events that will last a while (trips). Use one-off for single-day events (dinners)."
+- Suggestion ranking: overlap ratio (how many event participants are membership co-members) → quota remaining → recency of membership use → alphabetical
+- When only one membership exists, suggestion step is skipped — slot selection shown directly
 
 ## Error States
 
@@ -163,3 +223,5 @@ GET /memberships/me
 | Already funded | "This event is already funded" (show funded state) |
 | Cost spread already exists | "Cost spread already active" (prevent duplicate — known backend gap R9) |
 | Event locked | "This event is locked and can no longer be modified" |
+| Ceiling exceeded | "You've reached your per-member slot ceiling for this membership. Ask a co-member to fund, or use a different membership." |
+| Shared membership quota exhausted | "This shared membership has no slots remaining this cycle. Upgrade or use per-event fee." |

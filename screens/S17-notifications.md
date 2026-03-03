@@ -3,7 +3,7 @@
 **Purpose:** Activity feed and pending action indicators.
 **Visible to:** All authenticated users.
 **Rails:** — (passive screen, accessible via bottom nav)
-**Scenarios:** SC09
+**Scenarios:** SC09, SC27
 
 ## Wireframe
 

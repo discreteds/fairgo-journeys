@@ -61,6 +61,8 @@ flowchart TD
 
     %% Membership flow
     S15 -->|"Membership"| S13
+    S13 -->|"Governance notification"| S17
+    S17 -->|"Review Action"| S13
 
     %% Admin flow
     S16 -->|"Review"| S10
