@@ -6,8 +6,9 @@
 ## Rail Path
 
 ```
-S01 Welcome
-  │
+S01 Calculator (anonymous bill splitting)
+  │ user may enter people, items, splits (client-side)
+  │ or proceed directly to register/login
   ▼
 S02 Register / Login
   │
@@ -68,6 +69,10 @@ The "zero to first event" path triggers these backend calls:
 POST /auth/register              # 1. Create account + free tier membership (auto)
 POST /events                     # 2. Create event (auto: person + admin role)
 POST /events/{eid}/invite-codes  # 3. Auto-generate invite link (NOT shared yet)
+
+# If user had calculator state (R10 → R01 handoff):
+POST /events/{eid}/persons       # 4. Create each person from calculator (× N)
+POST /events/{eid}/transactions  # 5. Create transaction with line items and splits
 ```
 
 Three API calls. User filled two forms (register + event name). Everything else was automatic. The invite code is generated but not shared until the user reaches S06.
@@ -85,6 +90,7 @@ Registration automatically creates a **free tier membership** for the new user. 
 
 - SC01 (Alice Organizes Dinner) — full path including expense → people → share
 - SC02 (Bob Joins via Invite) — register → invite code branch
+- SC29 (Dave Splits a Dinner Without Signing Up) — calculator → register → data migration (via R10)
 - SC03 (Family Holiday) — create event → add people → PFG setup
 - SC04 (Housemates Monthly Bills) — create event → add people → multiple expenses
 - SC07 (Charlie Claims Person) — register → join → claim identity
