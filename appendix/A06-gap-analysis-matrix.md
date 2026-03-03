@@ -1,7 +1,7 @@
 # A06 — Gap Analysis Matrix
 
 **Date:** 2026-03-03
-**Last updated:** 2026-03-03 — Wave 1 scenario cross-references added (SC01, SC02, SC03, SC04, SC06 reworked in place; SC13, SC17, SC18, SC19 new; S18 new screen)
+**Last updated:** 2026-03-03 — Wave 3 complete: all gaps closed (A07, A08, SC16, SC20, SC21, SC22 created; 9 NICE edits applied; all differentiator gaps resolved)
 **Scope:** Journey documentation vs implemented API changes (CR-001, CR-002, Journey Extended Fixes, New User Paths)
 **Purpose:** Per-file checklists cross-referenced to change sources, prioritised for implementation waves
 
@@ -25,6 +25,7 @@
 | JF-5 | Response Polish | 201 status codes, error `suggestion` field, audit fields (`cancelled_at/by`, `voided_at/by`), display name propagation |
 | JF-6 | Audit Log | New entity + `GET /events/{eid}/audit-log` admin-only endpoint |
 | NUP | New User Paths | Path D (person-targeted invite auto-claim), sponsorship on join |
+| CR-004 | Wave 3 Journey Gaps | Partial settlement payments, event reopen, PFG direct creation, composite groups, optimistic locking |
 
 ---
 
@@ -51,7 +52,7 @@ No changes needed.
 | # | Change | Source | Priority | Status |
 |---|--------|--------|----------|--------|
 | 1 | Document free tier auto-creation on register | JF-4A | IMPORTANT | [x] |
-| 2 | Add `Idempotency-Key` to register/login orchestrations | CR-001 | NICE | [ ] |
+| 2 | Add `Idempotency-Key` to register/login orchestrations | CR-001 | NICE | [x] |
 
 #### S03 Home
 
@@ -64,8 +65,8 @@ No changes needed.
 
 | # | Change | Source | Priority | Status |
 |---|--------|--------|----------|--------|
-| 1 | Add `Idempotency-Key` mention to create event orchestration | CR-001 | NICE | [ ] |
-| 2 | Note 201 status code on successful creation | JF-5 | NICE | [ ] |
+| 1 | Add `Idempotency-Key` mention to create event orchestration | CR-001 | NICE | [x] |
+| 2 | Note 201 status code on successful creation | JF-5 | NICE | [x] |
 
 #### S05 Event Dashboard
 
@@ -91,7 +92,7 @@ No changes needed.
 | 1 | Add member modification request path for person addition (members can't create directly, only suggest) | JF-1C, JF-3 | CRITICAL | [x] |
 | 2 | Document merged persons excluded from match suggestions | JF-1A | IMPORTANT | [x] |
 | 3 | Add split line-item editing endpoint | JF-2A | IMPORTANT | [x] |
-| 4 | Add composite group creation (single endpoint) | JF-2B | NICE | [ ] |
+| 4 | Add composite group creation (single endpoint) | JF-2B | NICE | [x] |
 
 #### S08 Manage Groups
 
@@ -152,7 +153,7 @@ No changes needed.
 
 | # | Change | Source | Priority | Status |
 |---|--------|--------|----------|--------|
-| 1 | Note display name propagation to event persons | JF-5 | NICE | [ ] |
+| 1 | Note display name propagation to event persons | JF-5 | NICE | [x] |
 
 #### S16 Admin Moderation
 
@@ -190,7 +191,7 @@ No changes needed.
 
 | # | Change | Source | Priority | Status |
 |---|--------|--------|----------|--------|
-| 1 | Add `Idempotency-Key` mention on expense creation | CR-001 | NICE | [ ] |
+| 1 | Add `Idempotency-Key` mention on expense creation | CR-001 | NICE | [x] |
 | 2 | Add line-item splits with different consumption groups (food vs drinks) | Wave 1 | IMPORTANT | [x] |
 | 3 | Add weight=0 for non-drinker Carol on drinks line item | Wave 1 | IMPORTANT | [x] |
 | 4 | Add verified arithmetic with per-person breakdown and zero-sum checksum | Wave 1 | IMPORTANT | [x] |
@@ -259,7 +260,7 @@ No changes needed.
 
 | # | Change | Source | Priority | Status |
 |---|--------|--------|----------|--------|
-| 1 | Add `Idempotency-Key` mention on claim | CR-001 | NICE | [ ] |
+| 1 | Add `Idempotency-Key` mention on claim | CR-001 | NICE | [x] |
 
 #### SC08 Member Permission Walls
 
@@ -282,7 +283,7 @@ No changes needed.
 
 | # | Change | Source | Priority | Status |
 |---|--------|--------|----------|--------|
-| 1 | Add composite group creation endpoint | JF-2B | NICE | [ ] |
+| 1 | Add composite group creation endpoint | JF-2B | NICE | [x] |
 
 #### SC12 Dispute and Modification
 
@@ -303,6 +304,34 @@ No changes needed.
 | 4 | Include verified arithmetic: three expenses with known 3:2 ratios and zero-sum net settlement | Wave 1 | IMPORTANT | [x] |
 
 **Differentiator coverage:** Weight flexibility / unequal splits (primary), penny-exact arithmetic (secondary).
+
+#### SC14 Multi-Currency Bali Holiday
+
+*New scenario — Wave 2*
+
+| # | Change | Source | Priority | Status |
+|---|--------|--------|----------|--------|
+| 1 | Create scenario file `scenarios/SC14-multi-currency-bali-holiday.md` | Wave 2, CR-002 | IMPORTANT | [x] |
+| 2 | Demonstrate multi-currency event with 4 currencies (AUD, CAD, USD, IDR) and manual FX rates | CR-002 | IMPORTANT | [x] |
+| 3 | Demonstrate partial splits composing with PFG rollup across 3 couples | Wave 2 | IMPORTANT | [x] |
+| 4 | Demonstrate cross-currency settlement suggestions with home-currency equivalents | CR-002 | IMPORTANT | [x] |
+| 5 | Include verified arithmetic: IDR conversion table, 6×8 consumption matrix, zero-sum checksum | Wave 2 | IMPORTANT | [x] |
+
+**Differentiator coverage:** Multi-currency / FX rates (primary), PFG magic (secondary), partial splits (secondary).
+
+#### SC15 Complex Multi-Payer Restaurant (The Big Lunch)
+
+*New scenario — Wave 2*
+
+| # | Change | Source | Priority | Status |
+|---|--------|--------|----------|--------|
+| 1 | Create scenario file `scenarios/SC15-complex-multi-payer-restaurant.md` | Wave 2 | IMPORTANT | [x] |
+| 2 | Demonstrate multi-payer expense with `side: "expense"` splits (Alice + Isla 50/50) | Wave 2 | IMPORTANT | [x] |
+| 3 | Demonstrate line-item subgroup splits (kids, adults, drinkers) on same transaction | Wave 2 | IMPORTANT | [x] |
+| 4 | Demonstrate 13-person event with 5 PFGs at scale | Wave 2 | IMPORTANT | [x] |
+| 5 | Include verified arithmetic: 13-row consumption matrix, PFG rollup, 4-transfer settlement | Wave 2 | IMPORTANT | [x] |
+
+**Differentiator coverage:** Multiple payers (primary), scaling 13+ participants (primary), line-item splits (secondary), PFG rollup (secondary).
 
 #### SC17 Work Lunch Penny-Exact
 
@@ -359,7 +388,7 @@ No changes needed.
 
 | # | Change | Source | Priority | Status |
 |---|--------|--------|----------|--------|
-| 1 | Add `Idempotency-Key` note on expense save | CR-001 | NICE | [ ] |
+| 1 | Add `Idempotency-Key` note on expense save | CR-001 | NICE | [x] |
 
 #### R03 Settlement Rail
 
@@ -378,7 +407,7 @@ No changes needed.
 
 | # | Change | Source | Priority | Status |
 |---|--------|--------|----------|--------|
-| 1 | Note free tier auto-creation on join | JF-4A | NICE | [ ] |
+| 1 | Note free tier auto-creation on join | JF-4A | NICE | [x] |
 
 #### R06 Admin Rail
 
@@ -490,17 +519,22 @@ No changes needed.
 | Document | Reason | Source | Priority | Status |
 |----------|--------|--------|----------|--------|
 | ~~**SC13: Person-Targeted Invite Auto-Claim**~~ | ~~Path D is undocumented — targeted invite skips merge~~ | NUP | IMPORTANT | [x] Created Wave 1 as `scenarios/SC13-income-proportional-couple.md` (scope shifted to weighted splits; Path D covered by SC02 rework) |
-| **SC14: Sponsorship on Join** | Sponsor brings dependents on join — undocumented flow | NUP | IMPORTANT | [ ] |
+| **SC14: Multi-Currency Bali Holiday** | Multi-currency event with FX rates, cross-currency settlement | Wave 2, CR-002 | IMPORTANT | [x] Created `scenarios/SC14-multi-currency-bali-holiday.md` |
+| **SC15: Complex Multi-Payer Restaurant** | Multi-payer, 13 participants, 5 PFGs at scale | Wave 2 | IMPORTANT | [x] Created `scenarios/SC15-complex-multi-payer-restaurant.md` |
+| **SC20: Sponsorship on Join** | Sponsor brings dependents on join — undocumented flow | NUP | IMPORTANT | [x] Created `scenarios/SC20-sponsorship-on-join.md` |
 | **SC17: Work Lunch Penny-Exact** | Penny-exact arithmetic undocumented | Wave 1 | IMPORTANT | [x] Created `scenarios/SC17-work-lunch-penny-exact.md` |
 | **SC18: Weekend Away Multi-Payer** | Multiple payers / net settlement minimization undocumented | Wave 1 | IMPORTANT | [x] Created `scenarios/SC18-weekend-away-multi-payer.md` |
 | **SC19: Birthday Shout (Weight=0)** | Weight=0 exclusion pattern undocumented as primary scenario | Wave 1 | IMPORTANT | [x] Created `scenarios/SC19-birthday-shout-weight-zero.md` |
 | **S18 Invite Landing** | Recipient onboarding entry screen needed for SC02 rework | Wave 1, NUP | IMPORTANT | [x] Created `screens/S18-invite-landing.md` |
-| **A07 Idempotency Guide** (or section in A01) | Idempotency touches every mutation — needs reference | CR-001 | IMPORTANT | [ ] |
-| **A08 Multi-Currency Reference** (or section in A01) | FX rates, conversion, write-offs — complex feature | CR-002 | IMPORTANT | [ ] |
+| **SC16: Undo/Correct Defaults** | Correction of aggressive defaults — differentiator gap | Wave 3 | IMPORTANT | [x] Created `scenarios/SC16-undo-correct-defaults.md` |
+| **SC21: Partial Settlement & Reopening** | Partial payments + event reopening — differentiator gap | Wave 3 | IMPORTANT | [x] Created `scenarios/SC21-partial-settlement-reopening.md` |
+| **SC22: Offline/Poor Connectivity** | Offline queue + sync with idempotency — differentiator gap | Wave 3 | IMPORTANT | [x] Created `scenarios/SC22-offline-poor-connectivity.md` |
+| **A07 Idempotency Guide** | Idempotency touches every mutation — needs reference | CR-001 | IMPORTANT | [x] Created `appendix/A07-idempotency-guide.md` |
+| **A08 Multi-Currency Reference** | FX rates, conversion, write-offs — complex feature | CR-002 | IMPORTANT | [x] Created `appendix/A08-multi-currency-reference.md` |
 
 ---
 
-## Differentiator Capability Coverage (Wave 1 State)
+## Differentiator Capability Coverage (Wave 3 — Complete)
 
 Cross-reference to `scenario-strategy.md` §6. Primary scenarios demonstrate the capability as their central purpose; secondary scenarios exercise it incidentally.
 
@@ -513,16 +547,17 @@ Cross-reference to `scenario-strategy.md` §6. Primary scenarios demonstrate the
 | Settlement group (PFG) magic | SC03 (reworked) | — | — |
 | Net settlement minimization | SC18 (new) | SC05 | — |
 | Structured disputes with audit trail | SC02 (reworked) | SC12 | — |
-| Recipient onboarding (first experience) | SC02 (reworked), S18 (new) | — | — |
-| Multiple payers | SC18 (new) | — | — |
+| Sponsorship on join | SC20 (new) | SC03 (reworked) | — |
+| Recipient onboarding (first experience) | SC02 (reworked), S18 (new) | SC20 (new) | — |
+| Multiple payers | SC18 (new), SC15 (new) | — | — |
 | Aggressive defaults (2-field expense entry) | SC01 (reworked), SC17 (new) | All | — |
-| Multi-currency (FX rates, cross-currency) | — | — | **GAP** |
-| Undo/correct aggressive defaults | — | — | **GAP** |
-| Scaling (10+ participants) | — | — | **GAP** |
-| Partial settlement & reopening | — | — | **GAP** |
-| Offline/poor connectivity | — | — | **GAP** |
+| Multi-currency (FX rates, cross-currency) | SC14 (new) | — | — |
+| Undo/correct aggressive defaults | SC16 (new) | — | — |
+| Scaling (10+ participants) | SC15 (new) | — | — |
+| Partial settlement & reopening | SC21 (new) | — | — |
+| Offline/poor connectivity | SC22 (new) | — | — |
 
-**Wave 1 result:** All eight demonstrable differentiators (capabilities without API blockers) now have primary scenario coverage. Five remaining gaps require backend design decisions before scenarios can be specified.
+**Wave 3 result:** All 14 differentiators now have primary scenario coverage. SC16 (undo/correct defaults), SC21 (partial settlement & reopening), and SC22 (offline/poor connectivity) close the final three gaps. No remaining **GAP** entries.
 
 ---
 
@@ -591,7 +626,7 @@ Add multi-currency support across all affected screens and appendix.
 
 Document undocumented features and user paths.
 
-**Targets:** S02, S03, S06, S13, S14, S17, R04, R06, new SC14 (Sponsorship on Join), new A07 or A01 section
+**Targets:** S02, S03, S06, S13, S14, S17, R04, R06, new SC20 (Sponsorship on Join), new A07 or A01 section
 
 **Note:** SC13, SC17, SC18, SC19 were advanced to Wave 1 as part of differentiator scenario coverage. S18 was also completed in Wave 1.
 
