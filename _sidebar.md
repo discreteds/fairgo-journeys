@@ -30,6 +30,7 @@
   - [S15 Profile / Settings](/screens/S15-profile-settings.md)
   - [S16 Admin Moderation](/screens/S16-admin-moderation.md)
   - [S17 Notifications](/screens/S17-notifications.md)
+  - [S18 Invite Landing](/screens/S18-invite-landing.md)
 
 - **User Scenarios**
   - [SC01 Alice Organizes Dinner](/scenarios/SC01-alice-organizes-dinner.md)
@@ -44,6 +45,10 @@
   - [SC10 Quota Exhaustion Recovery](/scenarios/SC10-quota-exhaustion-recovery.md)
   - [SC11 Complex Group Splits](/scenarios/SC11-complex-group-splits.md)
   - [SC12 Dispute and Modification](/scenarios/SC12-dispute-modification.md)
+  - [SC13 Income-Proportional Couple](/scenarios/SC13-income-proportional-couple.md)
+  - [SC17 Work Lunch Penny-Exact](/scenarios/SC17-work-lunch-penny-exact.md)
+  - [SC18 Weekend Away Multi-Payer](/scenarios/SC18-weekend-away-multi-payer.md)
+  - [SC19 Birthday Shout (Weight=0)](/scenarios/SC19-birthday-shout-weight-zero.md)
 
 - **Journey Rails**
   - [R01 Onboarding Rail](/rails/R01-onboarding-rail.md)

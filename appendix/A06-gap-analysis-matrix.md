@@ -1,6 +1,7 @@
 # A06 — Gap Analysis Matrix
 
 **Date:** 2026-03-03
+**Last updated:** 2026-03-03 — Wave 1 scenario cross-references added (SC01, SC02, SC03, SC04, SC06 reworked in place; SC13, SC17, SC18, SC19 new; S18 new screen)
 **Scope:** Journey documentation vs implemented API changes (CR-001, CR-002, Journey Extended Fixes, New User Paths)
 **Purpose:** Per-file checklists cross-referenced to change sources, prioritised for implementation waves
 
@@ -168,31 +169,72 @@ No changes needed.
 | 2 | Add `event_name` field | JF-4B | IMPORTANT | [x] |
 | 3 | Fix `since` param documentation | JF-4B | IMPORTANT | [x] |
 
+#### S18 Invite Landing
+
+*New screen — added Wave 1*
+
+| # | Change | Source | Priority | Status |
+|---|--------|--------|----------|--------|
+| 1 | Create S18 Invite Landing screen spec (balance preview, event summary, registration CTA) | NUP, Wave 1 | IMPORTANT | [x] |
+| 2 | Document recipient onboarding flow: S18 → S02 Register → S05 Event Dashboard | NUP | IMPORTANT | [x] |
+
+**Scenario coverage:** SC02 (reworked) references S18 as the entry point for invite recipients.
+
 ---
 
 ### Scenarios
 
 #### SC01 Alice Organizes Dinner
 
+*Reworked in place — Wave 1*
+
 | # | Change | Source | Priority | Status |
 |---|--------|--------|----------|--------|
 | 1 | Add `Idempotency-Key` mention on expense creation | CR-001 | NICE | [ ] |
+| 2 | Add line-item splits with different consumption groups (food vs drinks) | Wave 1 | IMPORTANT | [x] |
+| 3 | Add weight=0 for non-drinker Carol on drinks line item | Wave 1 | IMPORTANT | [x] |
+| 4 | Add verified arithmetic with per-person breakdown and zero-sum checksum | Wave 1 | IMPORTANT | [x] |
+
+**Differentiator coverage:** Line-item splits with different groups (primary), weight=0 exclusion (primary), aggressive defaults (primary).
 
 #### SC02 Bob Joins via Invite
+
+*Reworked in place — Wave 1*
 
 | # | Change | Source | Priority | Status |
 |---|--------|--------|----------|--------|
 | 1 | Document free tier auto-creation on register | JF-4A | IMPORTANT | [x] |
+| 2 | Add dispute lifecycle (raise → review → modify → resolve via S18 → S02 → S05 path) | Wave 1, JF-3 | IMPORTANT | [x] |
+| 3 | Add recipient onboarding flow referencing S18 Invite Landing | Wave 1, NUP | IMPORTANT | [x] |
+| 4 | Document auto-apply on modification request approval (no separate PATCH needed) | JF-3 | IMPORTANT | [x] |
+
+**Differentiator coverage:** Structured disputes with audit trail (primary), recipient onboarding / first experience (primary).
 
 #### SC03 Family Holiday Shared PFG
+
+*Reworked in place — Wave 1*
 
 | # | Change | Source | Priority | Status |
 |---|--------|--------|----------|--------|
 | 1 | Update composite group creation orchestration | JF-2B | IMPORTANT | [x] |
+| 2 | Add verified arithmetic with per-person and per-couple breakdown | Wave 1 | IMPORTANT | [x] |
+| 3 | Add unequal splits composing with PFGs | Wave 1 | IMPORTANT | [x] |
+| 4 | Simplify PFG discovery — show value before 7-step creation flow | Wave 1 | IMPORTANT | [x] |
+
+**Differentiator coverage:** Settlement group (PFG) magic (primary).
 
 #### SC04 Housemates Monthly Bills
 
-No changes needed.
+*Reworked in place — Wave 1*
+
+| # | Change | Source | Priority | Status |
+|---|--------|--------|----------|--------|
+| 1 | Fix arithmetic errors in original scenario | Wave 1 | CRITICAL | [x] |
+| 2 | Add custom rent split (bigger room = higher proportion) | Wave 1 | IMPORTANT | [x] |
+| 3 | Add dietary exclusion weight=0 (vegan excluded from meat-based grocery line items) | Wave 1 | IMPORTANT | [x] |
+| 4 | Add verified arithmetic with zero-sum checksum | Wave 1 | IMPORTANT | [x] |
+
+**Differentiator coverage:** Weight flexibility / unequal splits (secondary), weight=0 exclusion (secondary).
 
 #### SC05 Settle and Close
 
@@ -203,9 +245,15 @@ No changes needed.
 
 #### SC06 Free User Hits Limits
 
+*Reworked in place — Wave 1*
+
 | # | Change | Source | Priority | Status |
 |---|--------|--------|----------|--------|
 | 1 | Document free tier auto-creation | JF-4A | IMPORTANT | [x] |
+| 2 | Restructure to show value (completed split with penny-exact checksum) before the funding gate | Wave 1 | IMPORTANT | [x] |
+| 3 | Address cost-spread visibility — user sees what they are paying for before being asked to fund | Wave 1 | IMPORTANT | [x] |
+
+**Differentiator coverage:** Aggressive defaults / value demonstration (secondary).
 
 #### SC07 Charlie Claims Person
 
@@ -242,6 +290,60 @@ No changes needed.
 |---|--------|--------|----------|--------|
 | 1 | Remove separate PATCH call after resolve — auto-apply does both | JF-3 | CRITICAL | [x] |
 | 2 | Expand modification request API from 2 to 6 endpoints | JF-3 | IMPORTANT | [x] |
+
+#### SC13 Income-Proportional Couple (Mel & Jake)
+
+*New scenario — Wave 1*
+
+| # | Change | Source | Priority | Status |
+|---|--------|--------|----------|--------|
+| 1 | Create scenario file `scenarios/SC13-income-proportional-couple.md` | Wave 1 | IMPORTANT | [x] |
+| 2 | Demonstrate 3:2 weighted splits (60/40) applied consistently across multiple expenses | Wave 1 | IMPORTANT | [x] |
+| 3 | Demonstrate mixed payers within the same event using weighted splits | Wave 1 | IMPORTANT | [x] |
+| 4 | Include verified arithmetic: three expenses with known 3:2 ratios and zero-sum net settlement | Wave 1 | IMPORTANT | [x] |
+
+**Differentiator coverage:** Weight flexibility / unequal splits (primary), penny-exact arithmetic (secondary).
+
+#### SC17 Work Lunch Penny-Exact
+
+*New scenario — Wave 1 (renumbered from proposed "SC05" to avoid collision)*
+
+| # | Change | Source | Priority | Status |
+|---|--------|--------|----------|--------|
+| 1 | Create scenario file `scenarios/SC17-work-lunch-penny-exact.md` | Wave 1 | IMPORTANT | [x] |
+| 2 | Demonstrate penny-exact arithmetic: $47.30 ÷ 3 = $15.77 + $15.77 + $15.76 = $47.30 exactly | Wave 1 | IMPORTANT | [x] |
+| 3 | Demonstrate largest-remainder allocation algorithm (no rounding drift) | Wave 1 | IMPORTANT | [x] |
+| 4 | Include conservation invariant checksum | Wave 1 | IMPORTANT | [x] |
+
+**Differentiator coverage:** Penny-exact arithmetic with conservation invariant (primary), aggressive defaults (primary).
+
+#### SC18 Weekend Away Multi-Payer
+
+*New scenario — Wave 1 (renumbered from proposed "SC06" to avoid collision)*
+
+| # | Change | Source | Priority | Status |
+|---|--------|--------|----------|--------|
+| 1 | Create scenario file `scenarios/SC18-weekend-away-multi-payer.md` | Wave 1 | IMPORTANT | [x] |
+| 2 | Demonstrate multiple payers across different expenses in the same event | Wave 1 | IMPORTANT | [x] |
+| 3 | Demonstrate net settlement minimization — 4 expenses collapse to 2 payments | Wave 1 | IMPORTANT | [x] |
+| 4 | Demonstrate line-item splits with different consumption groups across payers | Wave 1 | IMPORTANT | [x] |
+| 5 | Include verified arithmetic with deterministic settlement netting | Wave 1 | IMPORTANT | [x] |
+
+**Differentiator coverage:** Line-item splits with different groups (primary), net settlement minimization (primary), multiple payers (primary).
+
+#### SC19 Birthday Shout (Weight=0)
+
+*New scenario — Wave 1 (renumbered from proposed "SC07" to avoid collision)*
+
+| # | Change | Source | Priority | Status |
+|---|--------|--------|----------|--------|
+| 1 | Create scenario file `scenarios/SC19-birthday-shout-weight-zero.md` | Wave 1 | IMPORTANT | [x] |
+| 2 | Demonstrate weight=0 exclusion pattern: Dave's food is shouted (weight 0) but he pays for his own drinks (weight 1) | Wave 1 | IMPORTANT | [x] |
+| 3 | Demonstrate 5-person event with mixed weight assignments per line item | Wave 1 | IMPORTANT | [x] |
+| 4 | Include before/after share comparison showing weight=0 impact ($89 → $19) | Wave 1 | IMPORTANT | [x] |
+| 5 | Include verified arithmetic with zero-sum checksum | Wave 1 | IMPORTANT | [x] |
+
+**Differentiator coverage:** Weight=0 exclusion (primary), weight flexibility (primary).
 
 ---
 
@@ -361,8 +463,13 @@ No changes needed.
 | Document | Note |
 |----------|------|
 | S01 Welcome | — |
-| SC04 Housemates Monthly Bills | — |
+| SC05 Settle and Close | — |
+| SC07 Charlie Claims Person | — |
+| SC08 Member Permission Walls | — |
+| SC09 Multi-Event Power User | — |
 | SC10 Quota Exhaustion Recovery | — |
+| SC11 Complex Group Splits | — |
+| SC12 Dispute and Modification | Adequate; gaps closed in earlier wave |
 | A04 SC01 API Changes | Historical |
 | A05 Gap Closure Changelog | Historical |
 | nav-map-interactive.md | — |
@@ -371,13 +478,42 @@ No changes needed.
 
 ## New Documents Needed
 
-| Document | Reason | Source | Priority |
-|----------|--------|--------|----------|
-| **SC13: Person-Targeted Invite Auto-Claim** | Path D is undocumented — targeted invite skips merge | NUP | IMPORTANT |
-| **SC14: Sponsorship on Join** | Sponsor brings dependents on join — undocumented flow | NUP | IMPORTANT |
-| **A07 Idempotency Guide** (or section in A01) | Idempotency touches every mutation — needs reference | CR-001 | IMPORTANT |
-| **A08 Multi-Currency Reference** (or section in A01) | FX rates, conversion, write-offs — complex feature | CR-002 | IMPORTANT |
-| **Audit Log screen/section** (S18 or section in S16) | New entity + endpoint needs UI specification | JF-6 | IMPORTANT |
+| Document | Reason | Source | Priority | Status |
+|----------|--------|--------|----------|--------|
+| ~~**SC13: Person-Targeted Invite Auto-Claim**~~ | ~~Path D is undocumented — targeted invite skips merge~~ | NUP | IMPORTANT | [x] Created Wave 1 as `scenarios/SC13-income-proportional-couple.md` (scope shifted to weighted splits; Path D covered by SC02 rework) |
+| **SC14: Sponsorship on Join** | Sponsor brings dependents on join — undocumented flow | NUP | IMPORTANT | [ ] |
+| **SC17: Work Lunch Penny-Exact** | Penny-exact arithmetic undocumented | Wave 1 | IMPORTANT | [x] Created `scenarios/SC17-work-lunch-penny-exact.md` |
+| **SC18: Weekend Away Multi-Payer** | Multiple payers / net settlement minimization undocumented | Wave 1 | IMPORTANT | [x] Created `scenarios/SC18-weekend-away-multi-payer.md` |
+| **SC19: Birthday Shout (Weight=0)** | Weight=0 exclusion pattern undocumented as primary scenario | Wave 1 | IMPORTANT | [x] Created `scenarios/SC19-birthday-shout-weight-zero.md` |
+| **S18 Invite Landing** | Recipient onboarding entry screen needed for SC02 rework | Wave 1, NUP | IMPORTANT | [x] Created `screens/S18-invite-landing.md` |
+| **A07 Idempotency Guide** (or section in A01) | Idempotency touches every mutation — needs reference | CR-001 | IMPORTANT | [ ] |
+| **A08 Multi-Currency Reference** (or section in A01) | FX rates, conversion, write-offs — complex feature | CR-002 | IMPORTANT | [ ] |
+
+---
+
+## Differentiator Capability Coverage (Wave 1 State)
+
+Cross-reference to `scenario-strategy.md` §6. Primary scenarios demonstrate the capability as their central purpose; secondary scenarios exercise it incidentally.
+
+| Capability | Primary Scenarios | Secondary | Gap? |
+|------------|-------------------|-----------|:----:|
+| Line-item splits with different consumption groups | SC01 (reworked), SC18 (new) | SC11 | — |
+| Penny-exact arithmetic with conservation invariant | SC17 (new) | SC01 (reworked), SC13 (new) | — |
+| Weight=0 exclusion | SC19 (new) | SC01 (reworked), SC04 (reworked) | — |
+| Weighted / unequal splits | SC13 (new) | SC04 (reworked), SC11 | — |
+| Settlement group (PFG) magic | SC03 (reworked) | — | — |
+| Net settlement minimization | SC18 (new) | SC05 | — |
+| Structured disputes with audit trail | SC02 (reworked) | SC12 | — |
+| Recipient onboarding (first experience) | SC02 (reworked), S18 (new) | — | — |
+| Multiple payers | SC18 (new) | — | — |
+| Aggressive defaults (2-field expense entry) | SC01 (reworked), SC17 (new) | All | — |
+| Multi-currency (FX rates, cross-currency) | — | — | **GAP** |
+| Undo/correct aggressive defaults | — | — | **GAP** |
+| Scaling (10+ participants) | — | — | **GAP** |
+| Partial settlement & reopening | — | — | **GAP** |
+| Offline/poor connectivity | — | — | **GAP** |
+
+**Wave 1 result:** All eight demonstrable differentiators (capabilities without API blockers) now have primary scenario coverage. Five remaining gaps require backend design decisions before scenarios can be specified.
 
 ---
 
@@ -422,13 +558,17 @@ See per-document tables above. Major clusters:
 
 ## Recommended Implementation Waves
 
-### Wave 1 — Critical Accuracy Fixes
+### Wave 1 — Critical Accuracy Fixes + Differentiator Scenario Coverage
 
-Fix documentation that is factually wrong. Highest value, prevents misinformation.
+**Status: Complete (2026-03-03)**
 
-**Targets:** S07, S09, S10, S11, S12, S16, SC05, SC12, A01 (idempotency), A02, A03, 01-nav-map
+Fix documentation that is factually wrong, and add scenario coverage for all demonstrable differentiators.
 
-**Sources:** CR-001, CR-002, JF-2A, JF-3, JF-1C, JF-4B
+**Critical accuracy targets (complete):** S07, S09, S10, S11, S12, S16, SC05, SC12, A01 (idempotency), A02, A03, 01-nav-map
+
+**Scenario coverage targets (complete):** SC01, SC02, SC03, SC04, SC06 reworked in place; SC13, SC17, SC18, SC19 created new; S18 Invite Landing screen spec created.
+
+**Sources:** CR-001, CR-002, JF-2A, JF-3, JF-1C, JF-4B, Wave 1 scenario strategy
 
 ### Wave 2 — Multi-Currency
 
@@ -442,7 +582,9 @@ Add multi-currency support across all affected screens and appendix.
 
 Document undocumented features and user paths.
 
-**Targets:** S02, S03, S06, S13, S14, S17, R04, R06, new SC13, new SC14, new A07 or A01 section
+**Targets:** S02, S03, S06, S13, S14, S17, R04, R06, new SC14 (Sponsorship on Join), new A07 or A01 section
+
+**Note:** SC13, SC17, SC18, SC19 were advanced to Wave 1 as part of differentiator scenario coverage. S18 was also completed in Wave 1.
 
 **Sources:** JF-2B, JF-4A, JF-4B, JF-6, NUP
 
