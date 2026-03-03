@@ -129,7 +129,68 @@ S11 Balances (updated)
 
 Bob's share is $0. The remaining $500 is split 4 ways at $125 each. Positions sum to zero.
 
-### 5. Member correction path — Carol raises a modification request
+### 5. Correction: forgot a second payer
+
+Alice then remembers that Dave actually chipped in $40 cash at the restaurant. She needs to change the expense from single-payer (Alice) to multi-payer (Alice + Dave).
+
+```
+S05 → taps "Team Dinner" → S10 Expense Detail
+    → taps [Edit]
+    → returns to S09 (edit mode, pre-filled)
+
+S09 Add Expense (edit mode)
+    Description: "Team Dinner"
+    Amount: $500.00
+    Paid by: Alice ← currently single payer
+
+    → Alice taps the "Paid by" field
+    → Selects "Multiple..." instead of a single person
+    → Payer picker opens:
+        ┌─────────────────────────────────────────────────────┐
+        │  Who paid?                                          │
+        │                                                     │
+        │  Alice    [$460.00______]                            │
+        │  Dave     [$40.00_______]                            │
+        │                                                     │
+        │  Total: $500.00 ✓                                   │
+        └─────────────────────────────────────────────────────┘
+
+    Split: Alice, Carol, Dave, Eve (unchanged from step 3)
+    Preview: $125.00 each (4 people)
+
+    → taps "Save"
+    ⚡ PATCH /events/{eid}/transactions/{tid}/line-items/{lid}/splits
+       Headers: Idempotency-Key: <uuid> (see A07)
+       {splits: [
+         {person_id: alice_id, side: "expense", weight: 460},
+         {person_id: dave_id,  side: "expense", weight: 40},
+         {person_id: alice_id, side: "consumption", weight: 1},
+         {person_id: carol_id, side: "consumption", weight: 1},
+         {person_id: dave_id,  side: "consumption", weight: 1},
+         {person_id: eve_id,   side: "consumption", weight: 1}
+       ]}
+    → positions recalculate
+```
+
+### 5a. Positions after adding co-payer
+
+```
+S11 Balances (updated)
+
+    Person    Paid      Consumed    Net
+    ──────    ────      ────────    ────
+    Alice     $460.00   $125.00     +$335.00
+    Bob       $0.00     $0.00       $0.00
+    Carol     $0.00     $125.00     −$125.00
+    Dave      $40.00    $125.00     −$85.00
+    Eve       $0.00     $125.00     −$125.00
+    ──────    ────      ────────    ────
+    Total     $500.00   $500.00     $0.00 ✓
+```
+
+Dave now owes $85 instead of $125 — his $40 cash contribution is recognised. Alice is owed $335 instead of $375.
+
+### 6. Member correction path — Carol raises a modification request
 
 Carol checks the expense and believes the split should be unequal — she had a starter only ($80 value) while Dave and Eve had mains ($140 each). Alice herself had $140. Carol requests a weighted correction.
 
@@ -176,31 +237,33 @@ S16 Admin Moderation
        → positions recalculate
 ```
 
-### 6. Final positions after weighted correction
+### 7. Final positions after weighted correction
 
 ```
 S11 Balances (final)
 
     Person    Paid      Consumed    Net
     ──────    ────      ────────    ────
-    Alice     $500.00   $140.00     +$360.00
+    Alice     $460.00   $140.00     +$320.00
     Bob       $0.00     $0.00       $0.00
     Carol     $0.00     $80.00      −$80.00
-    Dave      $0.00     $140.00     −$140.00
+    Dave      $40.00    $140.00     −$100.00
     Eve       $0.00     $140.00     −$140.00
     ──────    ────      ────────    ────
     Total     $500.00   $500.00     $0.00 ✓
 
     Arithmetic: 140 + 80 + 140 + 140 = 500 ✓
     Weights: Alice 140/500, Carol 80/500, Dave 140/500, Eve 140/500
+    Payments: Alice $460 + Dave $40 = $500 ✓
 ```
 
 ## Validates
 
 - Aggressive defaults can be corrected with a simple edit (admin path)
+- **Single-payer → multi-payer correction** — editing an expense to add a co-payer (Dave's $40 cash) via the "Multiple..." payer picker
 - Members can propose corrections via modification requests (member path)
 - Modification request auto-applies on approve — no separate API call
-- Positions recalculate correctly after split changes
+- Positions recalculate correctly after split changes (including after co-payer addition)
 - Both equal and weighted corrections work through the same UI
 - Zero-sum checksum maintained through all correction steps
 

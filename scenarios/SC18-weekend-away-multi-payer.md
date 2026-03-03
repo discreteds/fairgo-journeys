@@ -8,7 +8,7 @@
 
 ## Design Principle
 
-**"You don't have to figure out who owes whom for each thing separately."** This scenario demonstrates Fair Go's net settlement: four expenses paid by three different people, one with a partial exclusion (Bob didn't attend the surf lesson), all collapsed into two payments at the end. Complexity of inputs; simplicity of output.
+**"You don't have to figure out who owes whom for each thing separately."** This scenario demonstrates Fair Go's net settlement: four expenses paid by three different people — including one co-paid expense (Airbnb split between two cards) — one with a partial exclusion (Bob didn't attend the surf lesson), all collapsed into two payments at the end. Complexity of inputs; simplicity of output.
 
 ## The Situation
 
@@ -16,7 +16,7 @@ Alice, Bob, and Carol spend a weekend at the coast. Over two days, each person p
 
 | Expense | Amount | Paid By | Split Between |
 |---------|--------|---------|---------------|
-| Airbnb | $360.00 | Alice | Everyone (3-way equal) |
+| Airbnb | $360.00 | Alice ($200) & Bob ($160) | Everyone (3-way equal) |
 | Groceries | $84.00 | Bob | Everyone (3-way equal) |
 | Surf lesson | $120.00 | Carol | Alice & Carol only (Bob excluded) |
 | Dinner out | $93.00 | Alice | Everyone (3-way equal) |
@@ -34,13 +34,26 @@ S05 Event Dashboard — Alice opens "Weekend at the Coast" (already created)
     → taps "+ Add Expense" to begin entering costs
 ```
 
-### Expense 1 — Airbnb (Alice paid, everyone shares)
+### Expense 1 — Airbnb (Alice & Bob co-paid, everyone shares)
+
+Alice put $200 on her card for the Airbnb deposit. Before the weekend, Bob proactively transferred $160 directly to the host to help with cashflow — a pre-settlement transfer that Fair Go captures by listing Bob as a co-payer rather than waiting until settlement time.
 
 ```
 S09 Add Expense
     → Description: "Airbnb"
     → Amount: $360.00
-    → Paid by: Alice  ← default (current user)
+    → Paid by: taps "Multiple..."
+
+S09 → Paid by: "Multiple..."
+    ┌─────────────────────────────────────────────────┐
+    │  Who paid?                                      │
+    │                                                 │
+    │  Alice    [$200.00______]                        │
+    │  Bob      [$160.00______]                        │
+    │                                                 │
+    │  Total: $360.00 ✓                               │
+    └─────────────────────────────────────────────────┘
+
     → Split: Everyone equal
 
     Split preview:
@@ -57,8 +70,9 @@ S09 Add Expense
         line_items: [{
           description: "Airbnb",
           amount: "360.00",
-          payer_person_id: alice_id,
           splits: [
+            {person_id: alice_id, side: "expense", weight: 200},
+            {person_id: bob_id,   side: "expense", weight: 160},
             {person_id: alice_id, side: "consumption", weight: 1},
             {person_id: bob_id,   side: "consumption", weight: 1},
             {person_id: carol_id, side: "consumption", weight: 1}
@@ -184,17 +198,17 @@ S09 Add Expense
 
 | Person | Paid |
 |--------|------|
-| Alice | $360.00 + $93.00 = **$453.00** |
-| Bob | **$84.00** |
-| Carol | **$120.00** |
+| Alice | $200.00 (Airbnb) + $93.00 (Dinner) = **$293.00** |
+| Bob | $160.00 (Airbnb) + $84.00 (Groceries) = **$244.00** |
+| Carol | **$120.00** (Surf Lesson) |
 | **Σ** | **$657.00** |
 
 **Net positions:**
 
 | Person | Consumed | Paid | Net | Status |
 |--------|----------|------|-----|--------|
-| Alice | $239.00 | $453.00 | **−$214.00** | is owed $214 |
-| Bob | $179.00 | $84.00 | **+$95.00** | owes $95 |
+| Alice | $239.00 | $293.00 | **−$54.00** | is owed $54 |
+| Bob | $179.00 | $244.00 | **−$65.00** | is owed $65 |
 | Carol | $239.00 | $120.00 | **+$119.00** | owes $119 |
 | **Σ** | **$657.00** | **$657.00** | **$0.00 ✓** | |
 
@@ -205,12 +219,12 @@ S11 Balances
     ⚡ GET /events/{eid}/positions/persons
 
     ┌─────────────────────────────────────────────────┐
-    │  🟢 Alice    is owed $214.00                    │
-    │  🔴 Bob      owes $95.00                        │
+    │  🟢 Alice    is owed $54.00                     │
+    │  🟢 Bob      is owed $65.00                     │
     │  🔴 Carol    owes $119.00                       │
     └─────────────────────────────────────────────────┘
 
-    Checksum: −$214.00 + $95.00 + $119.00 = $0.00 ✓
+    Checksum: −$54.00 − $65.00 + $119.00 = $0.00 ✓
 
     → Alice taps "Settle Up"
 ```
@@ -223,31 +237,35 @@ S12 Settle Up
 
     Suggested payments (minimised):
     ┌─────────────────────────────────────────────────┐
-    │  Bob   → Alice   $95.00                         │
-    │  Carol → Alice   $119.00                        │
+    │  Carol → Alice   $54.00                         │
+    │  Carol → Bob     $65.00                         │
     │                                                 │
-    │  2 payments  (not 4 reimbursements)             │
+    │  2 payments  (not 6 reimbursements)             │
     └─────────────────────────────────────────────────┘
 
     Without netting, the tally would be:
-      Bob owes Alice for Airbnb ($120) and Dinner ($31)
-      Bob is owed by Alice for Groceries ($28 of $84)
       Carol owes Alice for Airbnb ($120) and Dinner ($31)
+      Carol owes Bob for Airbnb ($160 share) and Groceries ($84)
       Alice and Carol cross-owe on the surf lesson (Alice
         consumed $60, Carol paid $120 and consumed $60)
+      Bob's Airbnb co-payment offsets most of what he'd
+        otherwise owe Alice — a pre-settlement transfer that
+        the system handles naturally as a co-payer entry
 
     The system collapses all cross-owing into 2 direct transfers:
-    Bob pays Alice $95 and Carol pays Alice $119. Done.
+    Carol pays Alice $54 and Carol pays Bob $65. Done.
 ```
 
 ## The Differentiator Moment
 
-The settlement screen. Alice doesn't need to reason through "Bob owes me for the Airbnb minus what I owe him for the groceries, but Carol owes me for the Airbnb and the dinner, and then there's the surf lesson she paid for..." — the system nets everything. Bob pays Alice $95. Carol pays Alice $119. Two payments instead of four, with no mental arithmetic required.
+The settlement screen. Alice doesn't need to reason through "Bob and I both paid for the Airbnb, but I also paid for dinner, and Bob paid for groceries, and Carol paid for the surf lesson but Bob didn't go..." — the system nets everything. Carol pays Alice $54. Carol pays Bob $65. Two payments, no mental arithmetic.
 
-The surf lesson exclusion makes this concrete: Bob didn't go, so Bob doesn't pay — and that's handled with a single weight change, not a separate event or a manual side payment. Fair Go tracks who consumed what, who paid what, and presents only the minimum transfers needed to settle the whole weekend.
+Bob's proactive transfer to the Airbnb host is a **pre-settlement transfer** — he helped Alice with cashflow before the weekend even started. Rather than tracking this as a separate payment, Fair Go captures it naturally: Bob is a co-payer on the Airbnb expense, which reduces what he'd otherwise owe at settlement time. The surf lesson exclusion adds another layer: Bob didn't go, so Bob doesn't pay — handled with a single weight change. Fair Go tracks who consumed what, who paid what, and presents only the minimum transfers needed.
 
 ## Validates
 
+- **Within-expense multi-payer (co-payer)** — Alice ($200) and Bob ($160) both pay for the Airbnb via the "Multiple..." payer picker (S09), alongside sequential multi-payer (different payer per expense)
+- **Pre-settlement transfer** — Bob's proactive Airbnb payment captured naturally as a co-payer entry, reducing his settlement debt
 - **Multiple payers across an event** — Alice, Bob, and Carol each pay for something
 - **Payer switching on expense entry** — admin changes "Paid by" away from the default (self) to another participant
 - **Consumption-based exclusion (weight = 0)** — Bob is in the event but has weight 0 on the surf lesson; he is not excluded from the event, only from that line item's cost

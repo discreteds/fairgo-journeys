@@ -12,20 +12,35 @@
 
 Alice's event has 5 people: Alice, Bob, Carol, Dave, Eve.
 
-Alice creates a transaction with multiple line items:
+Alice creates a transaction with multiple line items. At the restaurant, Alice and Bob split the bill at the terminal — Alice puts $250 on her card, Bob covers the remaining $201.
 
 ```
 S05 → taps "+ Add Expense"
 S09 Add Expense → "Restaurant Dinner"
     → Total will be sum of line items
     → taps "Add Line Items" (multi-line mode)
+    → Paid by: taps "Multiple..."
+
+S09 → Paid by: "Multiple..."
+    ┌─────────────────────────────────────────────────────┐
+    │  Who paid?                                          │
+    │                                                     │
+    │  Alice    [$250.00______]                            │
+    │  Bob      [$201.00______]                            │
+    │                                                     │
+    │  Total: $451.00 ✓                                   │
+    └─────────────────────────────────────────────────────┘
+
+    → Both Alice and Bob are expense-side payers with
+      weights proportional to their payment amounts.
+      Consumption splits (below) are independent of who paid.
 ```
 
 **Line Item 1: Food ($200, split 5 ways equally)**
 
 ```
 S09 → Line Item: "Food" / $200.00
-    → Paid by: Alice
+    → Paid by: Alice ($250) & Bob ($201) — set at transaction level
     → Split between: Everyone (5 people)
     → Weights: all equal (1:1:1:1:1)
     → Each person: $40.00
@@ -35,7 +50,7 @@ S09 → Line Item: "Food" / $200.00
 
 ```
 S09 → Line Item: "Wine & Beer" / $150.00
-    → Paid by: Alice
+    → Paid by: Alice ($250) & Bob ($201) — set at transaction level
     → Split between: Alice, Bob, Dave (custom selection)
     → Weights: all equal (1:1:1)
     → Each drinker: $50.00
@@ -46,7 +61,7 @@ S09 → Line Item: "Wine & Beer" / $150.00
 
 ```
 S09 → Line Item: "Dessert Platter" / $60.00
-    → Paid by: Alice
+    → Paid by: Alice ($250) & Bob ($201) — set at transaction level
     → Split between: Alice, Carol
     → Weights: 2:1 (Alice had more)
     → Alice: $40.00 (weight 2 of 3)
@@ -57,7 +72,7 @@ S09 → Line Item: "Dessert Platter" / $60.00
 
 ```
 S09 → Line Item: "Service Charge" / $41.00
-    → Paid by: Alice
+    → Paid by: Alice ($250) & Bob ($201) — set at transaction level
     → Split between: Everyone
     → Weights: equal
     → Modifier on Eve: 0.5 (she arrived late, agreed to pay half service)
@@ -75,19 +90,23 @@ S09 → taps "Save Expense"
        {description: "Restaurant Dinner",
         line_items: [
           {description: "Food", amount: 200.00,
-           expense_splits: [{person_id: alice, weight: 1, modifier: 1.0}],
+           expense_splits: [{person_id: alice, weight: 250, side: "expense"},
+                            {person_id: bob,   weight: 201, side: "expense"}],
            consumption_splits: [{person_id: alice, weight: 1}, {person_id: bob, weight: 1},
                                 {person_id: carol, weight: 1}, {person_id: dave, weight: 1},
                                 {person_id: eve, weight: 1}]},
           {description: "Wine & Beer", amount: 150.00,
-           expense_splits: [{person_id: alice, weight: 1, modifier: 1.0}],
+           expense_splits: [{person_id: alice, weight: 250, side: "expense"},
+                            {person_id: bob,   weight: 201, side: "expense"}],
            consumption_splits: [{person_id: alice, weight: 1}, {person_id: bob, weight: 1},
                                 {person_id: dave, weight: 1}]},
           {description: "Dessert Platter", amount: 60.00,
-           expense_splits: [{person_id: alice, weight: 1, modifier: 1.0}],
+           expense_splits: [{person_id: alice, weight: 250, side: "expense"},
+                            {person_id: bob,   weight: 201, side: "expense"}],
            consumption_splits: [{person_id: alice, weight: 2}, {person_id: carol, weight: 1}]},
           {description: "Service Charge", amount: 41.00,
-           expense_splits: [{person_id: alice, weight: 1, modifier: 1.0}],
+           expense_splits: [{person_id: alice, weight: 250, side: "expense"},
+                            {person_id: bob,   weight: 201, side: "expense"}],
            consumption_splits: [{person_id: alice, weight: 1, modifier: 1.0},
                                 {person_id: bob, weight: 1, modifier: 1.0},
                                 {person_id: carol, weight: 1, modifier: 1.0},
@@ -101,7 +120,7 @@ Viewing the expense detail:
 ```
 S10 Expense Detail (P2 gap — per-line-item breakdown)
     Restaurant Dinner — Total: $451.00
-    Paid by: Alice
+    Paid by: Alice ($250.00) & Bob ($201.00)
 
     ┌──────────────────────────────────────────────┐
     │ Food         $200.00   5 people × $40.00     │
@@ -111,8 +130,8 @@ S10 Expense Detail (P2 gap — per-line-item breakdown)
     └──────────────────────────────────────────────┘
 
     Per-person totals:
-    Alice:  consumed $139.11  (paid $451.00 → owed $311.89)
-    Bob:    consumed $99.11   (owes $99.11)
+    Alice:  consumed $139.11  (paid $250.00 → owed $110.89)
+    Bob:    consumed $99.11   (paid $201.00 → owed $101.89)
     Carol:  consumed $69.11   (owes $69.11)
     Dave:   consumed $99.11   (owes $99.11)
     Eve:    consumed $44.56   (owes $44.56)
@@ -125,8 +144,8 @@ S11 Balances
     ⚡ GET /events/{eid}/positions/persons
     → Checksum: $0.00 ✓
 
-    Alice:  paid $451.00, consumed $139.11 → is owed $311.89
-    Bob:    paid $0,      consumed $99.11  → owes $99.11
+    Alice:  paid $250.00, consumed $139.11 → is owed $110.89
+    Bob:    paid $201.00, consumed $99.11  → is owed $101.89
     Carol:  paid $0,      consumed $69.11  → owes $69.11
     Dave:   paid $0,      consumed $99.11  → owes $99.11
     Eve:    paid $0,      consumed $44.56  → owes $44.56
@@ -149,6 +168,8 @@ S09 → Line Item: "Wine & Beer" / $150.00
 
 ## Validates
 
+- **Unequal co-payer amounts** — Alice ($250) and Bob ($201) pay different portions of the same $451 bill via the "Multiple..." payer picker (S09)
+- `expense_splits` with weights proportional to payment amounts (250:201), independent of consumption splits
 - Multi-line-item transactions with different split groups per line
 - Non-equal weights (dessert 2:1 split)
 - Modifiers (service charge with Eve at 0.5)
