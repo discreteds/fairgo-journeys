@@ -124,3 +124,6 @@ The audit log provides a chronological record of who did what and when, supporti
 
 - SC02 (Bob Joins via Invite) — admin approves role
 - SC03 (Family Holiday) — admin manages people and settlement groups
+- SC07 (Charlie Claims Person) — admin reviews identity match
+- SC08 (Member Permission Walls) — admin moderation of member requests
+- SC12 (Dispute and Modification) — admin reviews and resolves modification requests

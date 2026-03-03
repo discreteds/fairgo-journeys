@@ -20,6 +20,11 @@ Master view of how all screens connect and which journey rails traverse them.
           │         │
           ▼         ▼
     S05 Dashboard  S03 Home
+
+    S18 Invite Landing (personal invite deep link)
+          │
+          ▼
+    S02 Register → S05 Dashboard
           ▲         │
           │    ┌────┼────┐
           │    │         │
@@ -75,6 +80,7 @@ Master view of how all screens connect and which journey rails traverse them.
 | S15 | Profile/Settings | User account management | Bottom nav "Me" |
 | S16 | Admin Moderation | Centralized approval queue | S05 "Pending actions" |
 | S17 | Activity | Activity feed | Bottom nav "Activity" |
+| S18 | Invite Landing | Pre-auth balance preview for invite recipients | Personal invite deep link |
 
 ## Journey Rails Overview
 
@@ -83,9 +89,10 @@ Master view of how all screens connect and which journey rails traverse them.
 | R01 Onboarding | S01 → S02 → S03 → S04 → S05 | New user |
 | R02 Expense | S05 → S09 → S05 → S10 → S11 | All members |
 | R03 Settlement | S11 → S12 → S11 → S05 | All members + admin |
-| R04 Invitation | S05 → S06 ··· S01 → S02 → S05 | Admin (prepare & share) + invitee (receive) |
+| R04 Invitation | S05 → S06 ··· S18 → S02 → S05 (personal) / S01 → S02 → S05 (group link) | Admin (prepare & share) + invitee (receive) |
 | R05 Membership | S15 → S13 → S05 → S14 | Admin (funding) |
 | R06 Admin | S05 → S16 → S07/S08/S10/S14 | Admin |
+| R07 Dispute | S10 → S16 → S10/S05 | Member (raise) + admin (resolve) |
 
 ## SC01 Flow (Capture First, Share Last)
 
@@ -106,24 +113,25 @@ Expenses and people are equally accessible from S05 in either order. The above i
 | Screen | Scenarios | Rails | Backend Calls on Load |
 |--------|-----------|-------|----------------------|
 | S01 Welcome | SC01, SC02, SC07 | R01 | 0 |
-| S02 Register/Login | SC01, SC02, SC07, SC08 | R01 | 1 (auth) |
+| S02 Register/Login | SC01, SC02, SC07 | R01 | 1 (auth) |
 | S03 Home | SC01, SC04, SC09 | R01 | 2 (events + positions) |
-| S04 Create Event | SC01, SC03, SC04, SC09, SC10 | R01 | 0 |
-| S05 Event Dashboard | ALL | R01-R06 | 6 (parallel) |
-| S06 Prepare & Share | SC01, SC02 | R04 | 2 (persons + invite-codes) |
-| S07 Manage People | SC01, SC03, SC07, SC08, SC09 | R02, R06 | 3 |
+| S04 Create Event | SC01, SC03, SC04, SC06, SC10, SC18 | R01 | 0 |
+| S05 Event Dashboard | ALL | R01-R07 | 7 (parallel) |
+| S06 Prepare & Share | SC01 | R04 | 2 (persons + invite-codes) |
+| S07 Manage People | SC01, SC03, SC04, SC07, SC08, SC09 | R02, R06 | 3 |
 | S08 Manage Groups | SC03, SC11 | R06 | 2 |
-| S09 Add Expense | SC01, SC02, SC04, SC06, SC08, SC11 | R02 | 0 (pre-loaded) |
-| S10 Expense Detail | SC05, SC08, SC11, SC12 | R02, R06 | 3 |
-| S11 Balances | SC03, SC04, SC05, SC11, SC12 | R02, R03 | 1 |
-| S12 Settle Up | SC03, SC04, SC05, SC12 | R03 | 1 (positions) |
+| S09 Add Expense | SC01, SC04, SC06, SC08, SC11, SC13, SC17, SC18, SC19 | R02 | 0 (pre-loaded) |
+| S10 Expense Detail | SC02, SC05, SC08, SC11, SC12, SC19 | R02, R06, R07 | 3 |
+| S11 Balances | SC03, SC04, SC05, SC11, SC13, SC17, SC18 | R02, R03 | 1 |
+| S12 Settle Up | SC03, SC04, SC05, SC13, SC17, SC18 | R03 | 1 (positions) |
 | S13 Membership | SC06, SC10 | R05 | 1 |
 | S14 Event Funding | SC06, SC10 | R05, R06 | 1 |
 | S15 Profile | SC09 | R05 | 2 |
-| S16 Admin Moderation | SC02, SC08, SC12 | R06 | 3 |
+| S16 Admin Moderation | SC02, SC08, SC12 | R06, R07 | 3 |
 | S17 Activity | SC09 | — | 1 (`GET /users/me/activity`) |
+| S18 Invite Landing | SC02 | R04 | 1 (invite preview) |
 
-### SC07–SC12 Coverage
+### SC07–SC19 Coverage
 
 | Scenario | Name | Screens Referenced |
 |----------|------|--------------------|
@@ -132,7 +140,11 @@ Expenses and people are equally accessible from S05 in either order. The above i
 | SC09 | Multi-Event Power User | S03, S04, S05, S07, S15, S17 |
 | SC10 | Quota Exhaustion Recovery | S04, S05, S13, S14 |
 | SC11 | Complex Group Splits | S05, S08, S09, S10, S11 |
-| SC12 | Dispute and Modification | S05, S10, S11, S12, S16 |
+| SC12 | Dispute and Modification | S10, S16, S05 |
+| SC13 | Income-Proportional Couple | S05, S09, S11, S12 |
+| SC17 | Work Lunch Penny-Exact | S05, S09, S11, S12 |
+| SC18 | Weekend Away Multi-Payer | S05, S09, S11, S12 |
+| SC19 | Birthday Shout (Weight=0) | S05, S09, S10 |
 
 ### Observations
 

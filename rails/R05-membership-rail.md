@@ -59,3 +59,4 @@ POST /events/{eid}/funding/cost-spread   # optional
 
 - SC06 (Free User Hits Limits) — funding gate → per-event fee → cost spread
 - SC06 variant — funding gate → upgrade membership → subscription slot
+- SC10 (Quota Exhaustion Recovery) — quota hit → upgrade tier → fund event

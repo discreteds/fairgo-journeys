@@ -3,7 +3,7 @@
 **Purpose:** Create, confirm, and mark settlements as paid.
 **Visible to:** All can create/view. Admin confirms. Payer marks paid.
 **Rails:** R03 (Settlement)
-**Scenarios:** SC03, SC04, SC05
+**Scenarios:** SC03, SC04, SC05, SC13, SC17, SC18
 
 > **Idempotency requirement (CR-001):** All settlement mutation endpoints (`POST` create, confirm, pay, void) require an `Idempotency-Key: <client-generated-uuid>` header. The client generates a UUID v4 before each mutation and includes it in the request. If the same key is sent twice, the server returns the original response without re-executing the operation. This prevents duplicate settlements from network retries or double-taps.
 

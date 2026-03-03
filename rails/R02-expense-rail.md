@@ -67,6 +67,13 @@ Still one API call. Same two fields. Splits deferred until people exist.
 ## Scenarios Using This Rail
 
 - SC01 (Alice Organizes Dinner) — add expense before people (split-pending), then auto-assigned
-- SC02 (Bob Joins via Invite) — member adds expense (people already exist)
 - SC04 (Housemates Monthly Bills) — multiple expenses by different payers
 - SC06 (Free User Hits Limits) — expense blocked, then succeeds after funding
+- SC09 (Multi-Event Power User) — expenses across multiple events
+- SC10 (Quota Exhaustion Recovery) — expense blocked by quota, recover via funding
+- SC11 (Complex Group Splits) — multi-line-item with consumption group splits
+- SC12 (Dispute and Modification) — expense detail review and modification
+- SC13 (Income-Proportional Couple) — weighted 3:2 splits across multiple expenses
+- SC17 (Work Lunch Penny-Exact) — penny-exact equal split with largest-remainder
+- SC18 (Weekend Away Multi-Payer) — multiple payers, net settlement minimization
+- SC19 (Birthday Shout) — weight=0 exclusion pattern

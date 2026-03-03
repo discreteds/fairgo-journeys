@@ -3,7 +3,7 @@
 **Purpose:** View/add/edit persons. Identity resolution (merge). Settlement group assignment. Inline split preview on add.
 **Visible to:** All (admin has extra actions).
 **Rails:** R02, R06
-**Scenarios:** SC01, SC03
+**Scenarios:** SC01, SC03, SC04, SC07, SC08, SC09
 
 ## Wireframe
 
@@ -277,6 +277,31 @@ When a potential match is shown:
 
 Self-merge routing verified: non-admin members reach `authorize_self_merge()` via the try/except in the merge endpoint. The route-level auth (`require_event_role()`) permits members. Integration tested (Gap I2).
 
+## PFG Discovery Prompt
+
+After adding people, S07 surfaces a natural-language prompt to discover settlement groups — not a settings menu:
+
+```
+┌─────────────────────────────────────────────────────┐
+│  💡 Do any of these people settle together?         │
+│     (e.g. couples sharing a bank account)           │
+│                                        [Add group]  │
+└─────────────────────────────────────────────────────┘
+```
+
+Tapping "Add group" opens a 2-step flow (see SC03 for the full narrative):
+
+1. **Select members** — multi-select from person list
+2. **Name the group** — e.g. "Mark & Lisa" → tap "Done"
+
+```
+⚡ POST /events/{eid}/pfgs
+    {name: "Mark & Lisa", member_ids: [mark_id, lisa_id]}
+    → creates non-singleton PFG, assigns both persons in one call
+```
+
+This replaces the old 7-step flow with a simplified 2-step approach. The user never sees the words "PFG" or "singleton."
+
 ## Orchestration — "Change Settlement Group"
 
 ```
@@ -297,7 +322,10 @@ Self-merge routing verified: non-admin members reach `authorize_self_merge()` vi
 
 ```
 → S06 (Prepare & Share, pre-selected person)
+→ S06 generates personal invite link → recipient opens → S18 Invite Landing
 ```
+
+> **Cross-reference:** Personal invite recipients arrive at S18 (Invite Landing) where they see their balance preview before creating an account. See R04 Path B.
 
 ## Smart Defaults
 

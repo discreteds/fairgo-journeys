@@ -20,7 +20,8 @@ flowchart TD
     S14["S14<br>Event Funding"]
     S15["S15<br>Profile / Settings"]
     S16["S16<br>Admin Moderation"]
-    S17["S17<br>Notifications"]
+    S17["S17<br>Activity"]
+    S18["S18<br>Invite Landing"]
 
     %% Entry flow
     S01 -->|"Get Started / Log In"| S02
@@ -68,7 +69,9 @@ flowchart TD
     S16 --> S14
 
     %% Invitation return
-    S06 -.->|"Invitee arrives"| S01
+    S06 -.->|"Group link invitee"| S01
+    S06 -.->|"Personal invite"| S18
+    S18 -->|"Create account"| S02
 
     %% Styles
     classDef hub fill:#42b983,stroke:#333,stroke-width:3px,color:#fff
@@ -91,6 +94,7 @@ flowchart TD
     click S15 "#/screens/S15-profile-settings"
     click S16 "#/screens/S16-admin-moderation"
     click S17 "#/screens/S17-notifications"
+    click S18 "#/screens/S18-invite-landing"
 ```
 
 **S05 Event Dashboard** (highlighted in green) is the central hub. All journey rails pass through it.
@@ -102,6 +106,7 @@ flowchart TD
 | [R01 Onboarding](/rails/R01-onboarding-rail.md) | S01 → S02 → S03 → S04 → S05 | New user signs up and creates first event |
 | [R02 Expense](/rails/R02-expense-rail.md) | S05 → S09 → S05 → S10 → S11 | Add an expense and view balances |
 | [R03 Settlement](/rails/R03-settlement-rail.md) | S11 → S12 → S11 → S05 | Settle debts between participants |
-| [R04 Invitation](/rails/R04-invitation-rail.md) | S05 → S06 ··· S01 → S02 → S05 | Prepare & share invites, invitee joins event |
+| [R04 Invitation](/rails/R04-invitation-rail.md) | S05 → S06 ··· S18 → S02 → S05 (personal) / S01 → S02 → S05 (group) | Prepare & share invites, invitee joins event |
 | [R05 Membership](/rails/R05-membership-rail.md) | S15 → S13 → S05 → S14 | Manage subscription and event funding |
 | [R06 Admin](/rails/R06-admin-rail.md) | S05 → S16 → S07/S08/S10/S14 | Review and moderate pending actions |
+| [R07 Dispute](/rails/R07-dispute-rail.md) | S10 → S16 → S10/S05 | Raise, review, and resolve modification requests |

@@ -87,3 +87,8 @@ Three calls per settlement, but each is a single tap on S12.
 - SC03 (Family Holiday) — shared settlement group pays as one unit
 - SC04 (Housemates Monthly Bills) — solo settlement groups, multiple settlements
 - SC05 (Settle and Close) — full lifecycle through to event closure
+- SC13 (Income-Proportional Couple) — settlement of weighted splits
+- SC17 (Work Lunch Penny-Exact) — penny-exact settlement
+- SC18 (Weekend Away Multi-Payer) — net settlement minimization across payers
+
+> **Note:** The "Reopen Event" button lives on S05 in the `event.status = closed` state variant. Admin sees `[Reopen Event]` when an event is closed, triggering `POST /events/{eid}/reopen` to re-enable settlement creation.

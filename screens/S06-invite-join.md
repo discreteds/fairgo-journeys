@@ -3,7 +3,7 @@
 **Purpose:** Two-sided screen. Admin prepares person checklist and shares invite codes. New user redeems code.
 **Visible to:** Admin (generate side) / Unauthenticated or authenticated (redeem side).
 **Rails:** R04 (Invitation)
-**Scenarios:** SC01 (prepare & share), SC02 (join)
+**Scenarios:** SC01
 
 ## Wireframe — Prepare & Share (Admin)
 

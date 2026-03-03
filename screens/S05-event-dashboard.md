@@ -192,6 +192,34 @@ Settlements that have been voided display with audit fields showing who voided t
 
 The `voided_at` and `voided_by` fields are returned on settlement objects from `GET /events/{eid}/settlements`. Voided settlements are visually distinct (strikethrough or muted styling with the void reason displayed). These fields provide audit transparency so all participants can see when and why a settlement was reversed.
 
+## Wireframe — Closed Event (Admin View)
+
+When `event.status = closed`, admin sees a read-only dashboard with a reopen option:
+
+```
+┌──────────────────────────────┐
+│  ← Bali Trip           🔒   │
+├──────────────────────────────┤
+│                              │
+│  ┌──────────────────────────┐│
+│  │ 🔒 Event Closed           ││
+│  │ This event has been       ││
+│  │ closed. No new expenses   ││
+│  │ or settlements can be     ││
+│  │ created.                  ││
+│  │                           ││
+│  │ ┌────────────────────┐    ││
+│  │ │   Reopen Event     │    ││  ← admin only
+│  │ └────────────────────┘    ││
+│  └──────────────────────────┘│
+│                              │
+│  (expenses and settlements   │
+│   visible but read-only)     │
+└──────────────────────────────┘
+```
+
+**Reopen Event** calls `POST /events/{eid}/reopen` (or `PUT /events/{eid}` with `{status: "active"}`). After reopening, the FAB returns, settlement creation is re-enabled, and the closed banner disappears. Only admin can reopen.
+
 ## Orchestration — Page Load
 
 ```
@@ -227,6 +255,7 @@ Call 1 returns the event's `limits` field when the event is unfunded, containing
 | Event Settings ▸ | Admin | Edit modal | `PUT /events/{eid}` |
 | Funding Status ▸ | Admin | → S14 | Navigation |
 | Audit Log ▸ | Admin | Audit log view | `GET /events/{eid}/audit-log` |
+| Reopen Event | Admin | Stay on S05 | `POST /events/{eid}/reopen` (closed events only) |
 
 ## Smart Defaults
 
@@ -252,5 +281,5 @@ Call 1 returns the event's `limits` field when the event is unfunded, containing
 |-------|---------|
 | Event not found | "This event doesn't exist or you don't have access" → S03 |
 | Pending approval | Read-only view with approval banner |
-| Event closed | Read-only view with "Event closed" banner, no FAB |
+| Event closed | Read-only view with "Event closed" banner, no FAB, admin sees [Reopen Event] |
 | Unfunded limit hit | "This event needs funding to continue" → link to S14 (admin) or message to contact admin (member) |

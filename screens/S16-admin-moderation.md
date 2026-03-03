@@ -3,7 +3,7 @@
 **Purpose:** Centralized queue for pending approvals across events.
 **Visible to:** Admin only (per event).
 **Rails:** R06 (Admin)
-**Scenarios:** SC02
+**Scenarios:** SC02, SC08, SC12
 
 ## Wireframe
 

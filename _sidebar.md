@@ -57,6 +57,7 @@
   - [R04 Invitation Rail](/rails/R04-invitation-rail.md)
   - [R05 Membership Rail](/rails/R05-membership-rail.md)
   - [R06 Admin Rail](/rails/R06-admin-rail.md)
+  - [R07 Dispute Rail](/rails/R07-dispute-rail.md)
 
 - **Appendix**
   - [A01 Orchestrations](/appendix/A01-orchestrations.md)

@@ -85,3 +85,8 @@ Registration automatically creates a **free tier membership** for the new user. 
 
 - SC01 (Alice Organizes Dinner) — full path including expense → people → share
 - SC02 (Bob Joins via Invite) — register → invite code branch
+- SC03 (Family Holiday) — create event → add people → PFG setup
+- SC04 (Housemates Monthly Bills) — create event → add people → multiple expenses
+- SC07 (Charlie Claims Person) — register → join → claim identity
+- SC09 (Multi-Event Power User) — create multiple events from S03
+- SC18 (Weekend Away Multi-Payer) — create event → add people → multi-payer expenses

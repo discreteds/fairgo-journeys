@@ -3,7 +3,7 @@
 **Purpose:** The most-used screen. Single-screen expense entry with aggressive defaults.
 **Visible to:** All event members.
 **Rails:** R02 (Expense)
-**Scenarios:** SC01, SC02, SC04, SC06
+**Scenarios:** SC01, SC04, SC06, SC08, SC11, SC13, SC17, SC18, SC19
 
 This is where "aggressive defaults" matters most. The common case — "I paid, everyone splits equally" — is two fields (what + amount) and one tap (Save).
 
@@ -136,6 +136,53 @@ When "Custom weights" is selected for a line item:
 Live-calculated shares update as weights change.
 
 Weights are integers (1, 2, etc). The modifier field (not shown by default) allows fractional adjustments: 0.5 = half share (child discount), 1.5 = 150% share (surcharge). Modifier range: 0.0-2.0.
+
+### Weight Patterns
+
+The custom weights picker supports several common patterns demonstrated across scenarios:
+
+**Equal weights (default) — SC17:**
+```
+│  Split: Equal                  │
+│  ┌──────────────────────────┐│
+│  │ Alice    [1_]  $15.77    ││
+│  │ Bob      [1_]  $15.77    ││
+│  │ Carol    [1_]  $15.76    ││
+│  └──────────────────────────┘│
+│  Total: $47.30 (penny-exact) │
+```
+
+**Proportional ratio — SC13 (income split 3:2):**
+```
+│  Split: Custom weights         │
+│  ┌──────────────────────────┐│
+│  │ Mel      [3_]  $54.00    ││
+│  │ Jake     [2_]  $36.00    ││
+│  └──────────────────────────┘│
+│  Total: $90.00 (60/40 split) │
+```
+
+**Zero-weight exclusion — SC19 (birthday shout), SC01 (non-drinker):**
+```
+│  Split: Custom weights         │
+│  ┌──────────────────────────┐│
+│  │ Alice    [1_]  $17.50    ││
+│  │ Bob      [1_]  $17.50    ││
+│  │ Carol    [0_]  $0.00     ││  ← excluded
+│  │ Dave     [1_]  $17.50    ││
+│  │ Eve      [1_]  $17.50    ││
+│  └──────────────────────────┘│
+│  Total: $70.00               │
+```
+
+Weight = 0 means the person is excluded from that line item entirely. Their share is $0.00 and they don't appear in the split calculations. This enables patterns like:
+- Non-drinker excluded from alcohol line item (SC01)
+- Birthday person's food is shouted by others (SC19)
+- Vegan excluded from meat-based grocery items (SC04)
+
+**Payer switching — SC18:**
+
+The "Who paid?" picker defaults to the current user but can be changed to any participant. This enables multi-payer events where different people pay for different expenses (e.g. one person pays for accommodation, another for fuel).
 
 ## Orchestration — "Save Expense" (Split-Pending, ≤1 Person)
 

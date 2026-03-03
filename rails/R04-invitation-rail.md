@@ -11,23 +11,34 @@ SEND SIDE (Admin)               RECEIVE SIDE (Invitee)
 
 S05 Event Dashboard             Opens invite link
   │ "Share Event →"                 │
-  │ or "People ▸" →                │
-  │ "Send Personal Invite"         │
-  ▼                                ▼
-S06 Prepare & Share           S01 Welcome (deep link)
-  │ Person checklist              │
-  │ [Copy Group Link]             ▼
-  │ [Share via...]            S02 Register / Login
-  │ [Create Personal Link]        │
-  │ [Create All Links]            ├── (auto-join via session code)
-  │                                │   ⚡ POST /events/join
+  │ or "People ▸" →                ├── (personal invite)
+  │ "Send Personal Invite"         │        │
+  ▼                                │        ▼
+S06 Prepare & Share                │     S18 Invite Landing
+  │ Person checklist               │        │ (balance preview)
+  │ [Copy Group Link]              │        ▼
+  │ [Share via...]                 │     S02 Register / Login
+  │ [Create Personal Link]         │        │
+  │ [Create All Links]             │        ▼
+  │                                │     S05 Event Dashboard
   │                                │
-  │                                ▼
-  │                            S05 Event Dashboard
-  │                                │ (pending approval)
-  │                                │
-  ▼                                │
-S05 Event Dashboard ◄─── admin approves ───┘
+  │                                ├── (group link)
+  │                                │        │
+  │                                │        ▼
+  │                                │     S01 Welcome (deep link)
+  │                                │        │
+  │                                │        ▼
+  │                                │     S02 Register / Login
+  │                                │        │
+  │                                │        ├── (auto-join via session code)
+  │                                │        │   ⚡ POST /events/join
+  │                                │        │
+  │                                │        ▼
+  │                                │     S05 Event Dashboard
+  │                                │        │ (pending approval)
+  │                                │        │
+  ▼                                │        │
+S05 Event Dashboard ◄─── admin approves ────┘
   "⚠️ Pending actions"
   [Approve] [Reject]
 ```
@@ -51,7 +62,7 @@ Admin copies group link from S06 → shares externally → invitee opens link �
 ### Path B: Personal Invite (Identity Resolution)
 ```
 Admin creates personal invite on S06 for placeholder Dave
-→ Dave opens link → S02 → auto-claim (no duplicate person created)
+→ Dave opens link → S18 Invite Landing (balance preview) → S02 Register → S05 (auto-claim)
 ```
 
 ### Path C: Direct Code Entry
@@ -73,7 +84,7 @@ S05 → S06 (admin creates person-targeted invite for "Dave")
 Dave receives link → opens fairgo.app/join/Dk9x2q
          │
          ▼
-S01 Welcome (deep link detected)
+S18 Invite Landing (balance preview, event summary)
          │
          ▼
 S02 Register / Login

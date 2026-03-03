@@ -3,7 +3,7 @@
 **Purpose:** Show a new user their balance and event summary before asking them to create an account. The critical growth-loop screen — convert a curious visitor into a registered user by showing value first.
 **Visible to:** Unauthenticated users arriving via a personal invite link.
 **Rails:** R04 (Invitation)
-**Scenarios:** SC02-R
+**Scenarios:** SC02
 
 ---
 
@@ -239,7 +239,7 @@ This path allows Bob to browse the event without committing to registration. If 
 
 ## Cross-References
 
-- **SC02-R** — Bob Joins and Disputes: the primary scenario using this screen. Bob arrives here from Alice's personal link, sees his $43.50 share, taps "Create Account", registers, and proceeds to dispute a line item.
+- **SC02** — Bob Joins and Disputes: the primary scenario using this screen. Bob arrives here from Alice's personal link, sees his $43.50 share, taps "Create Account", registers, and proceeds to dispute a line item.
 - **S02** — Register / Login: destination after "Create Account to Pay". Invite code flows through to the join and claim orchestration.
 - **S05** — Event Dashboard: destination after successful claim, and also reachable directly via "View Full Event" in read-only mode.
 - **S06** — Prepare & Share: where Alice generates the personal invite link that routes Bob to this screen. S06 is the producer; S18 is the consumer.

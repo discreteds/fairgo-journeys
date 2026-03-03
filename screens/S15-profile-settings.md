@@ -3,7 +3,7 @@
 **Purpose:** User account management.
 **Visible to:** Authenticated users.
 **Rails:** R05 (Membership & Funding)
-**Scenarios:** —
+**Scenarios:** SC09
 
 ## Wireframe
 

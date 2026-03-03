@@ -3,7 +3,7 @@
 **Purpose:** Single-screen event creation with aggressive defaults.
 **Visible to:** All authenticated users. Creator becomes admin.
 **Rails:** R01 (Onboarding)
-**Scenarios:** SC01, SC03, SC04
+**Scenarios:** SC01, SC03, SC04, SC06, SC10, SC18
 
 ## Wireframe
 

@@ -3,7 +3,7 @@
 **Purpose:** Fund an event to unlock full features. Manage cost spread.
 **Visible to:** Admin only.
 **Rails:** R05 (Membership & Funding), R06 (Admin)
-**Scenarios:** SC06
+**Scenarios:** SC06, SC10
 
 ## Wireframe — Unfunded Event
 

@@ -387,6 +387,15 @@ No changes needed.
 | 1 | Add modification request handling | JF-3 | IMPORTANT | [x] |
 | 2 | Add audit log access | JF-6 | IMPORTANT | [x] |
 
+#### R07 Dispute Rail
+
+*New rail — Wave 2 coherence update*
+
+| # | Change | Source | Priority | Status |
+|---|--------|--------|----------|--------|
+| 1 | Create R07 Dispute Rail (raise → review → resolve lifecycle) | Wave 2, JF-3 | IMPORTANT | [x] |
+| 2 | Update SC02 rail reference from R05 to R07 | Wave 2 | IMPORTANT | [x] |
+
 ---
 
 ### Appendix

@@ -3,7 +3,7 @@
 **Purpose:** View/edit an existing transaction. See line items and per-person breakdown.
 **Visible to:** All can view. Admin can edit/approve. Member can propose changes.
 **Rails:** R02, R06
-**Scenarios:** SC05
+**Scenarios:** SC02, SC05, SC08, SC11, SC12, SC19
 
 ## Wireframe — View Mode
 

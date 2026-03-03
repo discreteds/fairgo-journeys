@@ -3,7 +3,7 @@
 **Purpose:** Who owes whom. The "positions" view, simplified.
 **Visible to:** All event members.
 **Rails:** R02, R03
-**Scenarios:** SC03, SC04, SC05
+**Scenarios:** SC03, SC04, SC05, SC11, SC13, SC17, SC18
 
 ## Wireframe — By Settlement Group (Default)
 

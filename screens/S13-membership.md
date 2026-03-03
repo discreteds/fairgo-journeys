@@ -3,7 +3,7 @@
 **Purpose:** View/manage subscription tier and quotas.
 **Visible to:** Authenticated users (from S15 Profile).
 **Rails:** R05 (Membership & Funding)
-**Scenarios:** SC06
+**Scenarios:** SC06, SC10
 
 ## Free Tier Auto-Creation (JF-4A)
 

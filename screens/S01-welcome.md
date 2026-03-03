@@ -3,7 +3,7 @@
 **Purpose:** First-time landing. Brand, value proposition, call to action.
 **Visible to:** Unauthenticated users only.
 **Rails:** R01 (Onboarding)
-**Scenarios:** SC01, SC02
+**Scenarios:** SC01, SC02, SC07
 
 ## Wireframe
 

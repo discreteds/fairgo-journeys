@@ -3,7 +3,7 @@
 **Purpose:** Authentication. Single screen with tab toggle.
 **Visible to:** Unauthenticated users.
 **Rails:** R01 (Onboarding)
-**Scenarios:** SC01, SC02
+**Scenarios:** SC01, SC02, SC07
 
 ## Wireframe — Register Tab
 

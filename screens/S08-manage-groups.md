@@ -3,7 +3,7 @@
 **Purpose:** Create/edit consumption groups. View settlement groups. Expand groups into splits.
 **Visible to:** All can view. Admin can create/edit.
 **Rails:** R06
-**Scenarios:** SC03
+**Scenarios:** SC03, SC11
 
 ## Wireframe
 

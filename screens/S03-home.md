@@ -3,7 +3,7 @@
 **Purpose:** Hub for all events. Entry point after login.
 **Visible to:** All authenticated users.
 **Rails:** R01 (Onboarding)
-**Scenarios:** SC01, SC04
+**Scenarios:** SC01, SC04, SC09
 
 ## Wireframe
 

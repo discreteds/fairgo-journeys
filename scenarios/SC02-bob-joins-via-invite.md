@@ -4,7 +4,7 @@
 
 **Persona:** Bob — a non-admin recipient. Receives a personal invite link from Alice, sees his balance before creating an account, reviews his split, and challenges a line item.
 **Screens:** S18 (Invite Landing) → S02 → S05 → S10 → S16 → S05
-**Rails:** R04 (Invitation), R05 (Dispute)
+**Rails:** R04 (Invitation), R07 (Dispute)
 **Prerequisite:** Follows directly from SC01-R. Alice has created Friday Dinner, entered two expenses, and shared Bob's personal invite link with him.
 
 ## The Situation
