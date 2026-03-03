@@ -46,6 +46,7 @@
 
 ```
 1. POST /auth/register {display_name, email, password}
+   Headers: Idempotency-Key: <uuid> (see A07)
    → user created, access_token + refresh_token returned
    → server auto-creates a free tier membership (no user action needed)
 2. Store tokens locally (localStorage or secure cookie)

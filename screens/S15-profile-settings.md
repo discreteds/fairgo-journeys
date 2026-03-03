@@ -51,6 +51,7 @@
 ```
 PUT /users/me {display_name}
 → profile updated
+→ display name change propagates to all event persons linked to this user account across all events (JF-5)
 ```
 
 ## Orchestration — "Change Password"

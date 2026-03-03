@@ -138,8 +138,8 @@ Instead of manually selecting people per line item, Alice could use groups:
 
 ```
 S08 Manage Groups → creates "Drinkers" group
-    ⚡ POST /events/{eid}/groups {name: "Drinkers"}
-    → add Alice, Bob, Dave as members
+    ⚡ POST /events/{eid}/groups {name: "Drinkers", type: "composite", member_group_ids: [...]}
+    → creates composite group in a single call (JF-2B)
 
 S09 → Line Item: "Wine & Beer" / $150.00
     → Split between: [Drinkers] group

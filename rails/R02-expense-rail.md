@@ -49,6 +49,8 @@ POST /events/{eid}/transactions    # Single call creates everything:
 
 One API call. User filled two fields (description + amount). Everything else was aggressive defaults.
 
+> **Idempotency:** Expense save includes an `Idempotency-Key` header for safe retry — see [A07 Idempotency Guide](/appendix/A07-idempotency-guide.md).
+
 The "add expense before people" path (split-pending):
 
 ```

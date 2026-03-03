@@ -28,6 +28,8 @@
 
 ```
 1. POST /events {name, description, currency, event_type, visibility}
+   Headers: Idempotency-Key: <uuid> (see A07)
+   -> 201 Created
    -> event created (event_type defaults to "singular", visibility defaults to "public")
    -> user gets admin event_role (auto)
    -> user's person auto-created with display_name from profile

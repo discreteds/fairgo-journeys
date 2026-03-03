@@ -318,6 +318,14 @@ This replaces the old 7-step flow with a simplified 2-step approach. The user ne
 4. Refresh person list (settlement group colours update)
 ```
 
+## Orchestration — "Create Composite Group"
+
+```
+POST /events/{eid}/groups {name: "Drinkers", type: "composite", member_group_ids: [group_a_id, group_b_id]}
+→ creates a composite group from existing groups in a single call (JF-2B)
+→ alternative to creating group + adding members individually
+```
+
 ## Orchestration — "Send Personal Invite" (Admin)
 
 ```

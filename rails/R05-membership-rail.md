@@ -55,6 +55,8 @@ POST /events/{eid}/funding {funding_type: "per_event_fee"}
 POST /events/{eid}/funding/cost-spread   # optional
 ```
 
+> **Free tier auto-creation (JF-4A):** On join, if the user has no membership tier, a free tier is auto-created server-side. No detour to S13 required before participating in events.
+
 ## Scenarios Using This Rail
 
 - SC06 (Free User Hits Limits) — funding gate → per-event fee → cost spread

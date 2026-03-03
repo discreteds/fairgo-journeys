@@ -46,7 +46,8 @@ Charlie taps "This is me" to self-claim:
 
 ```
 Charlie's S05 → taps [This is me]
-    ! POST /events/{eid}/persons/{placeholder_id}/merge {target_person_id: charlie_person_id}
+    ⚡ POST /events/{eid}/persons/{placeholder_id}/merge {target_person_id: charlie_person_id}
+       Headers: Idempotency-Key: <uuid> (see A07)
        → authorize_self_merge() validates:
          - source is placeholder (resolution_status: placeholder)
          - target belongs to requesting user

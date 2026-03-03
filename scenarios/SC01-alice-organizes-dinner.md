@@ -133,6 +133,7 @@ Alice taps "+ Add Line Item" to add the wine to the same transaction. The defaul
 
     → taps "Save Expense"
     ⚡ POST /events/{eid}/transactions
+       Headers: Idempotency-Key: <uuid> (see A07)
        {description: "Italian Dinner",
         line_items: [
           {description: "Food", amount: "45.00",

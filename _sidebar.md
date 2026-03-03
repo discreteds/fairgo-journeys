@@ -46,9 +46,15 @@
   - [SC11 Complex Group Splits](/scenarios/SC11-complex-group-splits.md)
   - [SC12 Dispute and Modification](/scenarios/SC12-dispute-modification.md)
   - [SC13 Income-Proportional Couple](/scenarios/SC13-income-proportional-couple.md)
+  - [SC14 Multi-Currency Bali Holiday](/scenarios/SC14-multi-currency-bali-holiday.md)
+  - [SC15 Complex Multi-Payer Restaurant](/scenarios/SC15-complex-multi-payer-restaurant.md)
+  - [SC16 Undo/Correct Defaults](/scenarios/SC16-undo-correct-defaults.md)
   - [SC17 Work Lunch Penny-Exact](/scenarios/SC17-work-lunch-penny-exact.md)
   - [SC18 Weekend Away Multi-Payer](/scenarios/SC18-weekend-away-multi-payer.md)
   - [SC19 Birthday Shout (Weight=0)](/scenarios/SC19-birthday-shout-weight-zero.md)
+  - [SC20 Sponsorship on Join](/scenarios/SC20-sponsorship-on-join.md)
+  - [SC21 Partial Settlement & Reopening](/scenarios/SC21-partial-settlement-reopening.md)
+  - [SC22 Offline/Poor Connectivity](/scenarios/SC22-offline-poor-connectivity.md)
 
 - **Journey Rails**
   - [R01 Onboarding Rail](/rails/R01-onboarding-rail.md)
@@ -66,3 +72,5 @@
   - [A04 SC01 API Changes](/appendix/A04-sc01-api-changes.md)
   - [A05 Gap Closure Changelog](/appendix/A05-gap-closure-changelog.md)
   - [A06 Gap Analysis Matrix](/appendix/A06-gap-analysis-matrix.md)
+  - [A07 Idempotency Guide](/appendix/A07-idempotency-guide.md)
+  - [A08 Multi-Currency Reference](/appendix/A08-multi-currency-reference.md)
