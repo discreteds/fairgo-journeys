@@ -2,8 +2,8 @@
 
 **Purpose:** Hub for all events. Entry point after login.
 **Visible to:** All authenticated users.
-**Rails:** R01 (Onboarding)
-**Scenarios:** SC01, SC04, SC09
+**Rails:** R01 (Onboarding), R08 (Template)
+**Scenarios:** SC01, SC04, SC09, SC23
 
 ## Wireframe
 
@@ -40,6 +40,8 @@
 │  ┌───────────────────┐  │
 │  │   Join with Code   │  │
 │  └───────────────────┘  │
+│                         │
+│  My Templates        ▸  │
 │                         │
 │  [Events] [Activity] [Me]│
 └─────────────────────────┘
@@ -84,6 +86,12 @@ Each event includes a `my_position` object with `person_id`, `total_paid`, `tota
 Each event in the list also includes `person_count` and `transaction_count` summary fields, displayed on the event card as "N people . M txns".
 
 **Pending invitations (JF-2B):** `GET /events/pending` returns events where the user has been invited but hasn't yet accepted. Each pending event includes the event name and the display name of the user who invited them. The section is hidden when there are no pending invitations.
+
+## Orchestration — "My Templates"
+
+```
+→ S19 (My Templates)
+```
 
 ## Orchestration — "+ New Event"
 
@@ -131,6 +139,7 @@ Each event in the list also includes `person_count` and `transaction_count` summ
 - "All settled ✓" badge when user's PFG net = $0.00
 - Closed events shown at bottom with muted styling
 - Ongoing events (`event_type: ongoing`) show running balance without "All settled" badge — they don't have a natural end point
+- "My Templates" link shown below action buttons — navigates to S19; hidden if user has no templates (owned or shared)
 - Singular events (`event_type: singular`) show completion badge when all settled
 - Events with pending approval show "⏳ Awaiting approval" badge
 

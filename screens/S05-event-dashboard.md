@@ -2,7 +2,7 @@
 
 **Purpose:** The hub screen. Everything about one event, role-aware.
 **Visible to:** All event members (admin and member views differ).
-**Rails:** R01, R02, R03, R04, R05, R06 (all rails pass through here)
+**Rails:** R01, R02, R03, R04, R05, R06, R07, R08, R09 (all rails pass through here)
 **Scenarios:** All
 
 This is the most important screen in the app. Every journey passes through it. Its load-time orchestration (7 parallel API calls) is the most performance-critical path.
@@ -52,6 +52,64 @@ This is the most important screen in the app. Every journey passes through it. I
 │  [Events] [Activity] [Me]   │
 └──────────────────────────────┘
 ```
+
+## Wireframe — Event Type Badge (CR-003)
+
+Ongoing events display a badge next to the event name, and the summary stats area shows the current period:
+
+```
+┌──────────────────────────────┐
+│  ← McKinnon Household 📅    │
+│    Ongoing                   │
+├──────────────────────────────┤
+│                              │
+│  ┌────────┐┌────────┐┌─────┐│
+│  │ $847   ││ 2      ││  5  ││
+│  │ total  ││ people ││ txn ││
+│  └────────┘└────────┘└─────┘│
+│  Current period: since       │
+│  31 Jan 2026 (3 txns)       │
+```
+
+One-off (singular) events do not show a badge — that is the default. The period indicator only appears on ongoing events when at least one settlement bookmark exists.
+
+## Wireframe — Linked Events (CR-003)
+
+When an event has EVENT_LINKs (from decomposition or other linking), a "Linked Events" card appears below the main content:
+
+```
+│  Linked Events               │
+│  ┌──────────────────────────┐│
+│  │ ← Friday Dinner with     ││
+│  │   Dave & Lisa             ││
+│  │   Decomposition · $200   ││
+│  │   [View source event →]  ││
+│  ├──────────────────────────┤│
+│  │ → McKinnon Household     ││
+│  │   Decomposition · $200   ││
+│  │   [View target event →]  ││
+│  └──────────────────────────┘│
+```
+
+Links are grouped by direction: "←" for events that linked *into* this event (as_target), "→" for events this event linked *to* (as_source). Tapping a link navigates to the linked event's S05 dashboard.
+
+## Wireframe — Post-Settlement Decomposition Prompt (CR-003)
+
+After all settlements in an event are marked paid, if any settlement involved a shared PFG, the dashboard shows a decomposition prompt:
+
+```
+│  ┌──────────────────────────┐│
+│  │ 🎉 All settled!           ││
+│  │                           ││
+│  │ Your household paid       ││
+│  │ $200 as a couple.         ││
+│  │ Split it between you?     ││
+│  │                           ││
+│  │ [Decompose →]  [Dismiss]  ││
+│  └──────────────────────────┘│
+```
+
+This prompt only appears once per settlement cycle. "Decompose →" opens the same decomposition flow as S12 (R09 rail). "Dismiss" hides the prompt permanently for this settlement.
 
 ## Wireframe — Multi-Currency Balances (CR-002)
 
@@ -134,6 +192,7 @@ Admin sees everything above, plus:
 │  │ ⚙️ Event Settings    ▸   ││
 │  │ 💳 Funding Status    ▸   ││
 │  │ 📋 Audit Log         ▸   ││
+│  │ 📋 Save as Template   ▸   ││
 │  └──────────────────────────┘│
 ```
 
@@ -230,8 +289,9 @@ When `event.status = closed`, admin sees a read-only dashboard with a reopen opt
 5. GET /events/{eid}/settlements        → settlement list + count (includes voided_at/voided_by)
 6. GET /events/{eid}/event-roles        → pending approvals (admin only)
 7. GET /events/{eid}/persons/my-matches → match suggestions for current user (member only)
+8. GET /events/{eid}/links              → event links (decomposition, etc.) — as_source + as_target
 
-Calls 2-7 parallelised after call 1 returns event metadata.
+Calls 2-8 parallelised after call 1 returns event metadata.
 ```
 
 Call 1 returns the event's `limits` field when the event is unfunded, containing `person_limit`, `transaction_limit`, `group_limit`, and current usage counts. This drives the free tier limits display. Call 4 returns positions keyed by currency for multi-currency balance rendering. Call 5 includes `voided_at` and `voided_by` audit fields on voided settlements.
@@ -256,6 +316,9 @@ Call 1 returns the event's `limits` field when the event is unfunded, containing
 | Funding Status ▸ | Admin | → S14 | Navigation |
 | Audit Log ▸ | Admin | Audit log view | `GET /events/{eid}/audit-log` |
 | Reopen Event | Admin | Stay on S05 | `POST /events/{eid}/reopen` (closed events only) |
+| Save as Template | Admin | Stay on S05 | `POST /events/{eid}/save-as-template` → template created on S19 |
+| Linked event tap | All | → S05 (linked) | Navigation to linked event dashboard |
+| Decompose → (prompt) | All (shared PFG) | → S12 decompose | R09 decomposition flow |
 
 ## Smart Defaults
 
@@ -274,6 +337,11 @@ Call 1 returns the event's `limits` field when the event is unfunded, containing
 - **Free tier limits** section shown only for unfunded events, with usage counts and a link to fund
 - **Voided settlements** shown with strikethrough styling, void reason, and who voided them
 - **Audit log** link shown for admins only, hidden for members
+- **Event type badge:** "📅 Ongoing" shown next to event name for ongoing events; singular events show no badge (default)
+- **Linked events** card shown only when `GET /events/{eid}/links` returns non-empty results; grouped by direction (source/target)
+- **Save as Template** action visible to admin in overflow menu — creates template from current event's group structure via `POST /events/{eid}/save-as-template`
+- **Post-settlement decomposition prompt** shown once when all settlements are paid and any involved a shared PFG; dismissible
+- **Ongoing event period indicator** shows transaction count since last bookmark in the summary stats area
 
 ## Error States
 

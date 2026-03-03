@@ -32,6 +32,9 @@
   - [S17 Notifications](/screens/S17-notifications.md)
   - [S18 Invite Landing](/screens/S18-invite-landing.md)
 
+  - *Templates & Linking*
+  - [S19 My Templates](/screens/S19-templates.md)
+
 - **User Scenarios**
   - [SC01 Alice Organizes Dinner](/scenarios/SC01-alice-organizes-dinner.md)
   - [SC02 Bob Joins via Invite](/scenarios/SC02-bob-joins-via-invite.md)
@@ -55,6 +58,9 @@
   - [SC20 Sponsorship on Join](/scenarios/SC20-sponsorship-on-join.md)
   - [SC21 Partial Settlement & Reopening](/scenarios/SC21-partial-settlement-reopening.md)
   - [SC22 Offline/Poor Connectivity](/scenarios/SC22-offline-poor-connectivity.md)
+  - [SC23 Template Lifecycle](/scenarios/SC23-template-lifecycle.md)
+  - [SC24 Ongoing Bookmarked Settlement](/scenarios/SC24-ongoing-bookmarked-settlement.md)
+  - [SC25 Dinner Decomposition Pipeline](/scenarios/SC25-dinner-decomposition-pipeline.md)
 
 - **Journey Rails**
   - [R01 Onboarding Rail](/rails/R01-onboarding-rail.md)
@@ -64,6 +70,8 @@
   - [R05 Membership Rail](/rails/R05-membership-rail.md)
   - [R06 Admin Rail](/rails/R06-admin-rail.md)
   - [R07 Dispute Rail](/rails/R07-dispute-rail.md)
+  - [R08 Template Rail](/rails/R08-template-rail.md)
+  - [R09 Decomposition Rail](/rails/R09-decomposition-rail.md)
 
 - **Appendix**
   - [A01 Orchestrations](/appendix/A01-orchestrations.md)

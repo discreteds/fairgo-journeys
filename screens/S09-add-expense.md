@@ -3,7 +3,7 @@
 **Purpose:** The most-used screen. Single-screen expense entry with aggressive defaults.
 **Visible to:** All event members.
 **Rails:** R02 (Expense)
-**Scenarios:** SC01, SC04, SC06, SC08, SC11, SC13, SC17, SC18, SC19
+**Scenarios:** SC01, SC04, SC06, SC08, SC11, SC13, SC17, SC18, SC19, SC24, SC25
 
 This is where "aggressive defaults" matters most. The common case — "I paid, everyone splits equally" — is two fields (what + amount) and one tap (Save).
 

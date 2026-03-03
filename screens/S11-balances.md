@@ -2,8 +2,8 @@
 
 **Purpose:** Who owes whom. The "positions" view, simplified.
 **Visible to:** All event members.
-**Rails:** R02, R03
-**Scenarios:** SC03, SC04, SC05, SC11, SC13, SC17, SC18
+**Rails:** R02, R03, R09
+**Scenarios:** SC03, SC04, SC05, SC11, SC13, SC17, SC18, SC25
 
 ## Wireframe — By Settlement Group (Default)
 
@@ -110,6 +110,32 @@ When an event contains expenses in multiple currencies, balances are displayed p
 
 Balances are grouped by currency. Each currency section has its own independent checksum. The summary card at top shows the user's net position per currency.
 
+## Wireframe — Shared PFG Decompose Action (CR-003)
+
+When a settlement group is a shared PFG (non-singleton, e.g. a couple), the position card shows a "Decompose" action. This allows the group members to internally split their shared obligation into another event.
+
+```
+│  By Settlement Group         │
+│  ┌──────────────────────────┐│
+│  │ 🔵 Alex & Sam            ││
+│  │    owes $200.00           ││
+│  │    ├ Alex    -$100.00    ││
+│  │    └ Sam     -$100.00    ││
+│  │                           ││
+│  │    [Decompose →]          ││
+│  ├──────────────────────────┤│
+│  │ 🔴 Dave                  ││
+│  │    is owed $200.00        ││
+│  └──────────────────────────┘│
+```
+
+The "Decompose →" action is only visible when:
+- The settlement group is a shared PFG (2+ members)
+- The current user is a member of that PFG
+- At least one paid settlement exists for this PFG
+
+Tapping "Decompose →" navigates to S12 with the decomposition flow pre-loaded (R09 rail). If no paid settlements exist yet, the action label changes to "Settle first to decompose" (disabled).
+
 ## Orchestration — Page Load
 
 ```
@@ -129,6 +155,7 @@ Single API call. The positions endpoint returns everything needed for both views
 | Settle Up | All (when owing) | → S12 | Pre-filled with user's PFG as from_group |
 | Settlement group tap | All | → S12 | Pre-filled with tapped group |
 | Toggle By Group / By Person | All | Same screen | Client-side re-render, no API call |
+| Decompose → | Shared PFG member | → S12 (decompose) | R09 — navigate with decomposition context |
 
 ## Cross-Currency Settlements
 
@@ -151,6 +178,7 @@ When an event spans multiple currencies, settlement suggestions on S12 may invol
 - Checksum displayed as a verification badge — always $0.00 if data is correct
 - Amounts formatted with + (owed) and - (owes) signs for clarity
 - **Multi-currency events:** Balances are displayed per currency. Each currency section has its own checksum. The summary card shows the user's net position in each currency.
+- **Shared PFG decompose action:** "Decompose →" shown on non-singleton settlement groups where the user is a member and paid settlements exist. Disabled with hint text if no paid settlements yet.
 
 ## Error States
 

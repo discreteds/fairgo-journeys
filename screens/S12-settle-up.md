@@ -1,9 +1,9 @@
 # S12 — Settle Up
 
-**Purpose:** Create, confirm, and mark settlements as paid.
+**Purpose:** Create, confirm, and mark settlements as paid. Offers decomposition for shared-PFG settlements.
 **Visible to:** All can create/view. Admin confirms. Payer marks paid.
-**Rails:** R03 (Settlement)
-**Scenarios:** SC03, SC04, SC05, SC13, SC17, SC18
+**Rails:** R03 (Settlement), R09 (Decomposition)
+**Scenarios:** SC03, SC04, SC05, SC13, SC17, SC18, SC24, SC25
 
 > **Idempotency requirement (CR-001):** All settlement mutation endpoints (`POST` create, confirm, pay, void) require an `Idempotency-Key: <client-generated-uuid>` header. The client generates a UUID v4 before each mutation and includes it in the request. If the same key is sent twice, the server returns the original response without re-executing the operation. This prevents duplicate settlements from network retries or double-taps.
 
@@ -82,6 +82,78 @@ Admin can void proposed or confirmed settlements. Voided settlements display who
 ```
 
 Voided settlement response includes `voided_at` (ISO 8601 timestamp) and `voided_by` (person display name + user ID).
+
+## Wireframe — Ongoing Event Period Indicator
+
+For ongoing events (`event_type: ongoing`), the settle-up screen shows a period indicator above the settlements. This scopes the current settlement to transactions since the last bookmark.
+
+```
+┌──────────────────────────────┐
+│  ← Settle Up                 │
+├──────────────────────────────┤
+│  📅 Current Period            │
+│  Since last settlement:      │
+│  31 Jan 2026                 │
+│  8 new transactions          │
+│                              │
+│  [Settle Current Period]     │
+├──────────────────────────────┤
+│                              │
+│  Suggested Settlements       │
+│  (scoped to current period)  │
+│  ...                         │
+└──────────────────────────────┘
+```
+
+When no previous settlement exists (first period), the indicator shows "Since event created" with the event creation date. The `settled_through_date` on proposed settlements marks the bookmark cutoff for the current period.
+
+## Wireframe — Decomposition Offer (Paid Shared-PFG Settlement)
+
+When a settlement involving a shared PFG (non-singleton) is marked as paid, a decomposition prompt appears. This lets the couple/household split their shared obligation internally.
+
+```
+│  Active Settlements          │
+│  ┌──────────────────────────┐│
+│  │ 🔵 Alex & Sam            ││
+│  │ → 🔴 Dave    $200.00     ││
+│  │ Status: 💰 Paid           ││
+│  │                           ││
+│  │ Split this between your   ││
+│  │ household?                ││
+│  │ [Decompose →]             ││
+│  └──────────────────────────┘│
+```
+
+The "Decompose →" prompt only appears when:
+- The settlement is paid
+- The from_group or to_group is a shared PFG (non-singleton)
+- The current user is a member of that shared PFG
+- No existing EVENT_LINK references this settlement
+
+## Orchestration — Decomposition Flow
+
+```
+1. User taps "Decompose →" on a paid settlement
+2. Bottom sheet / modal: "Where should this go?"
+   a) [Add to existing event] → event picker (filtered to ongoing + user's events)
+   b) [Create from template] → template picker → POST /templates/{id}/instantiate
+   c) [Create new event] → S04 with amount pre-filled
+3. System creates:
+   a) Transaction in target event:
+      POST /events/{target_eid}/transactions
+        {description: "{source_event_name} — couple's share",
+         line_items: [{amount: settlement_amount,
+           payer_person_id: payer_in_target_event,
+           splits: [target event members]}]}
+   b) Event link:
+      POST /event-links
+        {source_event_id, source_settlement_id,
+         target_event_id, target_transaction_id,
+         link_type: "decomposition",
+         metadata: {source_event_name, settlement_amount, settlement_currency}}
+4. Confirmation toast: "Added $200.00 to McKinnon Household" [View →]
+   → [View →] navigates to S05 of target event
+```
 
 ## Settlement Status Flow
 
@@ -166,6 +238,12 @@ Only proposed and confirmed settlements can be voided. Paid settlements cannot b
 - "Confirm" only appears for admins (prevents premature confirmation)
 - "Mark as Paid" available to payer's settlement group members or admin
 - Once all settlements are paid, S11 shows "All settled ✓"
+- **Ongoing events:** Period indicator shown above settlements, scoped to transactions since last bookmark
+- **Ongoing events:** "Settle Current Period" replaces generic "Create Settlement" label — clarifies scope
+- **Ongoing events:** `settled_through_date` set on proposed settlements, displayed as "Covers through {date}"
+- **Decomposition offer:** Only shown on paid settlements where from/to group is shared PFG and user is a member
+- **Decomposition:** "Add to existing event" filters to ongoing events the user belongs to — most common path
+- **Decomposition:** Seed transaction description auto-generated from source event name
 
 ## Custom Settlement
 

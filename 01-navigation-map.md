@@ -48,9 +48,19 @@ Master view of how all screens connect and which journey rails traverse them.
   S05     S05               │     S12           S10
   (back)  (back)            │     Settle        Expense
                             │     Up            Detail
-                            ▼
-                          S05
-                          (back)
+                            │       │
+                            ▼       ├── [Decompose →] → S05 (target event)
+                          S05       │   (R09 Decomposition Rail)
+                          (back)    │
+                                    ▼
+                                  S05
+                                  (back)
+
+    S03 Home ── "My Templates" ──→ S19 My Templates
+                                     │
+                                     ├── create / manage
+                                     │
+                                     └── "Use Template" → S04 → S05
 
     Bottom Nav: [S03 Events] [S17 Activity] [S15 Profile]
                                                 │
@@ -81,6 +91,7 @@ Master view of how all screens connect and which journey rails traverse them.
 | S16 | Admin Moderation | Centralized approval queue | S05 "Pending actions" |
 | S17 | Activity | Activity feed | Bottom nav "Activity" |
 | S18 | Invite Landing | Pre-auth balance preview for invite recipients | Personal invite deep link |
+| S19 | My Templates | Template management: list, create, edit, share, delete | S03 "My Templates", S15 |
 
 ## Journey Rails Overview
 
@@ -93,6 +104,8 @@ Master view of how all screens connect and which journey rails traverse them.
 | R05 Membership | S15 → S13 → S05 → S14 | Admin (funding) |
 | R06 Admin | S05 → S16 → S07/S08/S10/S14 | Admin |
 | R07 Dispute | S10 → S16 → S10/S05 | Member (raise) + admin (resolve) |
+| R08 Template | S03/S15 → S19 → S04 → S05 | Returning user with recurring groups |
+| R09 Decomposition | S12 → [Decompose] → S05 (target) | Couple/household member settling shared PFG |
 
 ## SC01 Flow (Capture First, Share Last)
 
@@ -114,24 +127,25 @@ Expenses and people are equally accessible from S05 in either order. The above i
 |--------|-----------|-------|----------------------|
 | S01 Welcome | SC01, SC02, SC07 | R01 | 0 |
 | S02 Register/Login | SC01, SC02, SC07 | R01 | 1 (auth) |
-| S03 Home | SC01, SC04, SC09 | R01 | 2 (events + positions) |
-| S04 Create Event | SC01, SC03, SC04, SC06, SC10, SC18 | R01 | 0 |
-| S05 Event Dashboard | ALL | R01-R07 | 7 (parallel) |
+| S03 Home | SC01, SC04, SC09, SC23 | R01, R08 | 2 (events + positions) |
+| S04 Create Event | SC01, SC03, SC04, SC06, SC10, SC18, SC23, SC24 | R01, R08 | 0 |
+| S05 Event Dashboard | ALL | R01-R09 | 8 (parallel) |
 | S06 Prepare & Share | SC01 | R04 | 2 (persons + invite-codes) |
 | S07 Manage People | SC01, SC03, SC04, SC07, SC08, SC09 | R02, R06 | 3 |
 | S08 Manage Groups | SC03, SC11 | R06 | 2 |
-| S09 Add Expense | SC01, SC04, SC06, SC08, SC11, SC13, SC17, SC18, SC19 | R02 | 0 (pre-loaded) |
+| S09 Add Expense | SC01, SC04, SC06, SC08, SC11, SC13, SC17, SC18, SC19, SC24, SC25 | R02 | 0 (pre-loaded) |
 | S10 Expense Detail | SC02, SC05, SC08, SC11, SC12, SC19 | R02, R06, R07 | 3 |
-| S11 Balances | SC03, SC04, SC05, SC11, SC13, SC17, SC18 | R02, R03 | 1 |
-| S12 Settle Up | SC03, SC04, SC05, SC13, SC17, SC18 | R03 | 1 (positions) |
+| S11 Balances | SC03, SC04, SC05, SC11, SC13, SC17, SC18, SC25 | R02, R03, R09 | 1 |
+| S12 Settle Up | SC03, SC04, SC05, SC13, SC17, SC18, SC24, SC25 | R03, R09 | 3 (positions + settlements + suggestions) |
 | S13 Membership | SC06, SC10 | R05 | 1 |
 | S14 Event Funding | SC06, SC10 | R05, R06 | 1 |
 | S15 Profile | SC09 | R05 | 2 |
 | S16 Admin Moderation | SC02, SC08, SC12 | R06, R07 | 3 |
 | S17 Activity | SC09 | — | 1 (`GET /users/me/activity`) |
 | S18 Invite Landing | SC02 | R04 | 1 (invite preview) |
+| S19 My Templates | SC23 | R08 | 1 (`GET /templates`) |
 
-### SC07–SC19 Coverage
+### SC07–SC25 Coverage
 
 | Scenario | Name | Screens Referenced |
 |----------|------|--------------------|
@@ -145,12 +159,18 @@ Expenses and people are equally accessible from S05 in either order. The above i
 | SC17 | Work Lunch Penny-Exact | S05, S09, S11, S12 |
 | SC18 | Weekend Away Multi-Payer | S05, S09, S11, S12 |
 | SC19 | Birthday Shout (Weight=0) | S05, S09, S10 |
+| SC23 | Template Lifecycle | S03, S04, S05, S19 |
+| SC24 | Ongoing Bookmarked Settlement | S04, S05, S09, S11, S12 |
+| SC25 | Dinner Decomposition Pipeline | S05, S09, S11, S12 |
 
 ### Observations
 
-- **S05 is the hub** — every rail and scenario passes through it. Its 6 parallel API calls are the most performance-critical path.
+- **S05 is the hub** — every rail and scenario passes through it. Its 8 parallel API calls (now including event links) are the most performance-critical path.
 - **S06 now serves SC01** — expanded from invite-only to "Prepare & Share" with person checklist, making it part of the primary admin flow.
 - **S09 supports split-pending** — no longer requires people before expense entry, enabling the "capture first" principle.
 - **S07 shows inline split preview** — person creation response now includes affected transactions, shown inline without extra navigation.
 - **S17 (Activity)** now has a dedicated endpoint (`GET /users/me/activity`) and is referenced in SC09 (multi-event power user).
 - **S15 (Profile)** is utility — low priority for initial implementation.
+- **S19 (My Templates)** is a CR-003 addition — accessible from S03 Home and S15 Profile. Templates can also be saved from S05 (reverse instantiation).
+- **R08 (Template Rail)** connects S03/S15 → S19 → S04 → S05 for template-based event creation.
+- **R09 (Decomposition Rail)** connects S12 → decompose modal → S05 (target event) for shared-PFG settlement decomposition. Also reachable from S11 and S05 post-settlement prompt.
