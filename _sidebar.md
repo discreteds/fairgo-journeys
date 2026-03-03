@@ -38,6 +38,12 @@
   - [SC04 Housemates Monthly Bills](/scenarios/SC04-housemates-monthly-bills.md)
   - [SC05 Settle and Close](/scenarios/SC05-settle-and-close.md)
   - [SC06 Free User Hits Limits](/scenarios/SC06-free-user-hits-limits.md)
+  - [SC07 Charlie Claims Person](/scenarios/SC07-charlie-claims-person.md)
+  - [SC08 Member Permission Walls](/scenarios/SC08-member-permission-walls.md)
+  - [SC09 Multi-Event Power User](/scenarios/SC09-multi-event-power-user.md)
+  - [SC10 Quota Exhaustion Recovery](/scenarios/SC10-quota-exhaustion-recovery.md)
+  - [SC11 Complex Group Splits](/scenarios/SC11-complex-group-splits.md)
+  - [SC12 Dispute and Modification](/scenarios/SC12-dispute-modification.md)
 
 - **Journey Rails**
   - [R01 Onboarding Rail](/rails/R01-onboarding-rail.md)
@@ -52,3 +58,5 @@
   - [A02 Smart Defaults](/appendix/A02-smart-defaults.md)
   - [A03 Role Permissions UI](/appendix/A03-role-permissions-ui.md)
   - [A04 SC01 API Changes](/appendix/A04-sc01-api-changes.md)
+  - [A05 Gap Closure Changelog](/appendix/A05-gap-closure-changelog.md)
+  - [A06 Gap Analysis Matrix](/appendix/A06-gap-analysis-matrix.md)

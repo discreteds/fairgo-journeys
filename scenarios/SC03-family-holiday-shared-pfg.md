@@ -14,7 +14,7 @@ S04 Create Event → "Bali Trip"
 S05 Event Dashboard
     → taps "People ▸"
 S07 Manage People → adds Bob, Carol, Dave, Eve, Frank as placeholders
-    ⚡ POST /events/{eid}/persons × 5
+    ⚡ POST /events/{eid}/persons × 5 (individual calls)
     All created with singleton PFGs (the default)
 ```
 
@@ -24,14 +24,12 @@ Alice sets up the shared settlement group for her and Carol:
 S07 → taps Carol's row → "Change Settlement Group"
     → picker shows: "Create new shared group"
     → names it "Alice & Partner"
-    ⚡ POST /events/{eid}/groups {name: "Alice & Partner", is_singleton: false}
-    ⚡ PUT /events/{eid}/persons/{carol_id}/pfg {group_id: new_group_id}
-    → Carol now shows 🔵 Alice & Partner
-
-S07 → taps Alice's row → "Change Settlement Group"
-    → picker shows: "Alice & Partner" (existing)
-    ⚡ PUT /events/{eid}/persons/{alice_id}/pfg {group_id: alice_partner_id}
+    ⚡ POST /events/{eid}/groups
+       {name: "Alice & Partner", is_singleton: false,
+        members: [alice_id, carol_id]}
+       → composite endpoint: creates group + assigns both persons in one call
     → Alice now shows 🔵 Alice & Partner
+    → Carol now shows 🔵 Alice & Partner
 ```
 
 **Simplified with singleton auto-group (I3):** If Alice adds Carol directly to her singleton group instead of creating a new group first, the backend auto-creates a new non-singleton group with both members. Alice's original singleton remains untouched. This reduces the PFG setup from 4 steps to 2 (add member + reassign PFG).
@@ -71,7 +69,12 @@ S11 Balances (By Settlement Group):
 Alice and Carol's debts are **combined** into a single settlement group. One payment covers both:
 
 ```
-S12 Settle Up → suggested:
+S12 Settle Up
+    ⚡ GET /events/{eid}/settlement-suggestions
+       → server computes optimal payment paths at PFG level
+       → minimises number of transfers
+
+    Suggested settlements:
     🔵 Alice & Partner pays $142.50 → 🔴 Frank
     🔴 Dave pays $95.00 → 🔴 Bob ($85) + 🔴 Frank ($10)
     🔴 Eve pays $80.00 → 🔴 Frank

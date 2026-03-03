@@ -77,11 +77,13 @@ Groups where a person's PFG points to them are settlement groups. All others are
 
 ```
 1. Prompt: group name + select members (checkbox list of all persons)
-2. POST /events/{eid}/groups {name, is_singleton: false}
-3. For each selected member:
-   POST /events/{eid}/groups/{gid}/members {person_id}
-4. Refresh group list
+2. POST /events/{eid}/groups
+     {name, is_singleton: false, members: [{person_id}, {person_id}, ...]}
+   → group created with all selected members in a single call
+3. Refresh group list
 ```
+
+> **Composite endpoint (JF-2B):** Group creation uses a single composite call that accepts the group definition and members array together. This replaces the previous multi-step approach (create group, then add members individually) and reduces network round-trips from N+1 to 1.
 
 ## Orchestration — Edit Group Members (Admin)
 

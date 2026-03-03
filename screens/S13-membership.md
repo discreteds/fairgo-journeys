@@ -5,6 +5,10 @@
 **Rails:** R05 (Membership & Funding)
 **Scenarios:** SC06
 
+## Free Tier Auto-Creation (JF-4A)
+
+Every new user automatically receives a free tier membership upon registration (see S02). No manual plan selection is required. The membership screen reflects this default state — new users arriving here for the first time will see the "FREE" plan already active. Upgrade options are always available from this screen.
+
 ## Wireframe — Free User
 
 ```

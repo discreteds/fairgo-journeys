@@ -65,11 +65,13 @@
 The backend activity feed endpoint is implemented:
 
 ```
-GET /users/me/activity?limit=50&offset=0
--> returns unified, chronological activity feed across all events the user participates in
+GET /users/me/activity?limit=50&offset=0&since=2026-01-15T00:00:00Z
+→ returns unified, chronological activity feed across all events the user participates in
 ```
 
-Single call. Activities are recorded server-side when key actions occur (transaction creation, settlement status changes, person merges, event closures, role changes). Pagination via `limit` and `offset` query parameters.
+Single call. Activities are recorded server-side when key actions occur (transaction creation, settlement status changes, person merges, event closures, role changes, modification requests). Pagination via `limit` and `offset` query parameters.
+
+**`since` parameter (JF-4B):** Optional ISO 8601 timestamp. When provided, only activities created after the given timestamp are returned. This is used to fetch new activity since the user's last visit, powering the unread badge count on the Activity tab. Example: `?since=2026-01-15T00:00:00Z` returns only activities from January 15, 2026 onwards.
 
 ### Superseded: Client-Side Derived (Approach A)
 
@@ -87,8 +89,18 @@ The original MVP approach of aggregating from N x 3 endpoint calls per event is 
 | Person merged | `person_merged` | "{summary}" |
 | Event closed | `event_closed` | "{summary}" |
 | Role changed | `role_changed` | "{summary}" |
+| Mod request created | `modification_request_created` | "{summary}" |
+| Mod request approved | `modification_request_approved` | "{summary}" |
+| Mod request rejected | `modification_request_rejected` | "{summary}" |
+| Event funded | `event_funded` | "{summary}" |
+| Person added | `person_added` | "{summary}" |
+| Person removed | `person_removed` | "{summary}" |
 
-Each activity record includes: `id`, `user_id`, `event_id`, `activity_type`, `entity_type`, `entity_id`, `summary`, `created_at`.
+> **Phase 4B additions (JF-4B):** The `modification_request_created`, `modification_request_approved`, `modification_request_rejected`, `event_funded`, `person_added`, and `person_removed` types were added to cover the full lifecycle of event modifications and membership changes.
+
+Each activity record includes: `id`, `user_id`, `event_id`, `event_name`, `activity_type`, `entity_type`, `entity_id`, `summary`, `created_at`.
+
+> **Event name field (JF-4B):** Each activity item now includes `event_name` directly in the response. This allows the frontend to display event context (e.g. "Bali Trip") without needing a separate lookup. Activities can be grouped or filtered by event name in the UI.
 
 ## Actions
 

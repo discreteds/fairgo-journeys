@@ -7,6 +7,28 @@ Every place in the UI where a single user action triggers one or more backend ca
 > The UI should feel like a simple app. The backend is complex. The orchestration layer
 > bridges the gap — translating simple gestures into correct API call sequences.
 
+## Idempotency Requirement (CR-001)
+
+All **financial mutation** endpoints require an `Idempotency-Key: <client-generated-uuid>` request header. The client generates a UUID v4 before each mutation and includes it in the request. If the server receives a duplicate key, it returns the original response without re-executing the operation.
+
+**Endpoints requiring Idempotency-Key:**
+
+| Endpoint | Action |
+|----------|--------|
+| `POST /events/{eid}/transactions` | Create expense |
+| `PUT /events/{eid}/transactions/{tid}` | Edit expense |
+| `POST /events/{eid}/transactions/{tid}/approve` | Approve expense |
+| `POST /events/{eid}/transactions/{tid}/cancel` | Cancel expense |
+| `POST /events/{eid}/settlements` | Create settlement |
+| `POST /events/{eid}/settlements/{sid}/confirm` | Confirm settlement |
+| `POST /events/{eid}/settlements/{sid}/pay` | Mark settlement paid |
+| `POST /events/{eid}/settlements/{sid}/void` | Void settlement |
+| `POST /events/{eid}/write-offs` | Create write-off |
+| `POST /events/{eid}/funding` | Fund event |
+| `POST /events/{eid}/funding/cost-spread` | Spread funding costs |
+
+This prevents duplicate financial records from network retries, double-taps, or offline sync conflicts.
+
 ## Single-Action Orchestrations
 
 ### Event Lifecycle
@@ -21,12 +43,15 @@ Every place in the UI where a single user action triggers one or more backend ca
 
 ### Expense Entry
 
+> All expense mutations require `Idempotency-Key` header — see [Idempotency Requirement](#idempotency-requirement-cr-001).
+
 | UI Action | Screen | Feels Like | Backend Calls |
 |-----------|--------|-----------|---------------|
 | Add simple expense | S09 | 2 fields + save | `POST /transactions` with nested line_items + splits (1 call) |
 | Add split-pending expense | S09 | 2 fields + save | `POST /transactions` with `splits_status: "pending"`, empty splits (1 call) |
 | Add multi-item expense | S09 | Fill rows + save | Same single `POST /transactions` with array of line_items (1 call) |
 | Edit expense | S10 | Edit form | `PUT /transactions` + `PUT /line-items` + split updates (3+ calls) |
+| Edit splits (inline) | S10 | Adjust weights | `PATCH /events/{eid}/transactions/{tid}/line-items/{lid}/splits` (1 call, JF-2A) |
 | Approve expense | S10 | 1 tap | `POST /transactions/{tid}/approve` (1 call) |
 | Cancel expense | S10 | Confirm + tap | `POST /transactions/{tid}/cancel` (1 call) |
 
@@ -63,6 +88,8 @@ Every place in the UI where a single user action triggers one or more backend ca
 
 ### Settlement
 
+> All settlement mutations require `Idempotency-Key` header — see [Idempotency Requirement](#idempotency-requirement-cr-001).
+
 | UI Action | Screen | Feels Like | Backend Calls |
 |-----------|--------|-----------|---------------|
 | Create settlement | S12 | 1 tap on suggestion | `POST /settlements` (1 call) |
@@ -71,6 +98,8 @@ Every place in the UI where a single user action triggers one or more backend ca
 | Void settlement | S12 | Confirm + tap | `POST /settlements/{sid}/void` (1 call) |
 
 ### Funding
+
+> Funding mutations require `Idempotency-Key` header — see [Idempotency Requirement](#idempotency-requirement-cr-001).
 
 | UI Action | Screen | Feels Like | Backend Calls |
 |-----------|--------|-----------|---------------|
@@ -93,22 +122,46 @@ Every place in the UI where a single user action triggers one or more backend ca
 | Approve role (inline) | S05 | 1 tap | `POST /event-roles/{rid}/approve` (1 call) |
 | Reject role (inline) | S05 | 1 tap | `POST /event-roles/{rid}/remove` (1 call) |
 
+### Modification Requests (JF-3)
+
+| UI Action | Screen | Feels Like | Backend Calls |
+|-----------|--------|-----------|---------------|
+| View modification requests | S16 | Page load | `GET /events/{eid}/modification-requests` (1 call) |
+| Submit modification request (member) | S10 | "Suggest Change" tap | `POST /events/{eid}/modification-requests` (1 call) |
+| Approve modification request (admin) | S16 | 1 tap | `POST /events/{eid}/modification-requests/{id}/approve` (1 call) |
+| Reject modification request (admin) | S16 | 1 tap | `POST /events/{eid}/modification-requests/{id}/reject` (1 call) |
+
+### Audit Log (JF-6)
+
+| UI Action | Screen | Feels Like | Backend Calls |
+|-----------|--------|-----------|---------------|
+| View audit log (admin-only) | S05/S16 | Tap audit icon | `GET /events/{eid}/audit-log` (1 call, paginated) |
+
+### FX Rate Management (CR-002)
+
+| UI Action | Screen | Feels Like | Backend Calls |
+|-----------|--------|-----------|---------------|
+| List FX rates for event | S05/S09 | Automatic on load | `GET /events/{eid}/fx-rates` (1 call) |
+| Set FX rate for event | S09 | Pick currency + rate | `POST /events/{eid}/fx-rates` (1 call) |
+
+FX rates are stored per-event and referenced when creating multi-currency expenses or cross-currency settlements.
+
 ## Page Load Orchestrations
 
 | Screen | Calls | Can Parallelise? | Notes |
 |--------|-------|-----------------|-------|
-| S03 Home | 1 (`GET /events?include=my_position`) | N/A | Position embedded in event response (P1) |
+| S03 Home | 2 (`GET /events?include=my_position` + `GET /events/pending`) | Yes | Position embedded in event response (P1); pending events for invitation badges (JF-2B) |
 | S05 Dashboard | 6 | Yes (5 parallel after event load) | Most critical — every journey passes through |
 | S06 Prepare & Share | 2 | Yes | Persons + invite-codes |
 | S07 People | 2 (persons with embedded PFG + groups) | Yes | PFG embedded in person response; `my-matches` for member view |
 | S08 Groups | 2 | Yes | Lightweight |
 | S10 Expense Detail | 1 (`GET /transactions/{tid}` with embedded line items + splits) | N/A | Full tree in single response (P2) |
 | S11 Balances | 1 | N/A | Positions endpoint returns everything |
-| S12 Settle Up | 2 | Yes | Positions + settlements |
+| S12 Settle Up | 3 | Yes | Positions + settlements + settlement-suggestions (JF-2A) |
 | S13 Membership | 1 | N/A | Single endpoint |
 | S14 Funding | 1-2 | Yes | Funding + membership (if unfunded) |
 | S15 Profile | 2 | Yes | User + persons |
-| S16 Admin | 3 × N events | Yes | Roles + txns + persons per event |
+| S16 Admin | 4 × N events | Yes | Roles + txns + persons + modification-requests per event (JF-3); audit-log on demand (JF-6) |
 
 ## Split-Pending Transaction Lifecycle
 

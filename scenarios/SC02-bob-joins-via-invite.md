@@ -13,13 +13,17 @@ Bob receives an invite link in a group chat: `fairgo.app/join/X7kQ2m`
 S01 Welcome → deep link detected, redirects to S02 with code in session
 S02 Register → creates account (display name: "Bob")
     ⚡ POST /auth/register → tokens stored
+       → free tier membership auto-created (JF-4A)
     ⚡ POST /events/join {invite_code: "X7kQ2m"}
        → event_role created (status: pending_approval)
        → person auto-created (resolution_status: auto_created)
+       → if admin has sponsorship enabled: Bob covered by sponsor's tier (NUP)
        → response: no potential_matches (Bob is new)
 S05 Event Dashboard → "⏳ Awaiting Approval" banner
     Bob can see event name and people but can't add expenses
 ```
+
+> **Note (JF-4A):** Bob's registration automatically creates a free tier membership. No tier selection is needed. If Alice (the event admin) has sponsorship enabled on her paid tier, Bob's participation in this event is covered by Alice's plan — Bob gets paid-tier benefits without upgrading.
 
 Meanwhile, Alice (admin) sees the notification on her dashboard:
 

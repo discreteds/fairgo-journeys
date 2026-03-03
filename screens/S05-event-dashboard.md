@@ -53,6 +53,52 @@ This is the most important screen in the app. Every journey passes through it. I
 └──────────────────────────────┘
 ```
 
+## Wireframe — Multi-Currency Balances (CR-002)
+
+When an event contains transactions in multiple currencies, the balance section displays per-currency totals instead of a single aggregate number:
+
+```
+│  Your Balance                │
+│  ┌──────────────────────────┐│
+│  │  AUD  You owe $142.50    ││
+│  │  USD  You're owed $23.00 ││
+│  │  EUR  You owe €18.00     ││
+│  │                          ││
+│  │  ┌────────────────────┐  ││
+│  │  │   Settle Up        │  ││
+│  │  └────────────────────┘  ││
+│  └──────────────────────────┘│
+```
+
+Each currency row follows the same colour conventions: red for "You owe", green for "You're owed". The "Settle Up" button is shown if the user owes in any currency. The summary stats row at the top also groups totals by currency when multiple currencies are present:
+
+```
+│  ┌────────┐┌────────┐┌─────┐│
+│  │AUD $947││USD $300││  3  ││
+│  │ total  ││ total  ││ txn ││
+│  └────────┘└────────┘└─────┘│
+```
+
+> The positions endpoint (`GET /events/{eid}/positions`) returns positions keyed by currency. The frontend groups and renders one balance row per currency. Single-currency events display as before with no grouping header.
+
+## Wireframe — Event Limits (Free Tier)
+
+When an event is unfunded (free tier), the dashboard displays current usage against limits so users understand remaining capacity:
+
+```
+│  ┌──────────────────────────┐│
+│  │  Free Tier Limits         ││
+│  │  Persons:     4 / 5       ││
+│  │  Expenses:    1 / 1       ││
+│  │  Groups:      1 / 1       ││
+│  │  Settlements: not available││
+│  │                           ││
+│  │  [Fund This Event →]      ││
+│  └──────────────────────────┘│
+```
+
+Limits data comes from the event object's `limits` field, which includes `person_limit`, `transaction_limit`, `group_limit` and current usage counts. The limits section is hidden for funded events. For members (non-admin), the "Fund This Event" link is replaced with "Contact your event admin to unlock full features."
+
 ## Wireframe — Split-Pending Expenses
 
 When transactions have `splits_status: "pending"`, they display with a pending indicator instead of payer info:
@@ -87,8 +133,11 @@ Admin sees everything above, plus:
 │  ┌──────────────────────────┐│
 │  │ ⚙️ Event Settings    ▸   ││
 │  │ 💳 Funding Status    ▸   ││
+│  │ 📋 Audit Log         ▸   ││
 │  └──────────────────────────┘│
 ```
+
+> **Audit Log (JF-6):** The "Audit Log" link is visible to admin users only. It navigates to a view powered by `GET /events/{eid}/audit-log`, which returns a chronological list of all modifications, settlements, voids, and role changes for the event. Members do not see this link.
 
 ## Wireframe — Pending Approval State
 
@@ -124,19 +173,40 @@ When `GET /events/{eid}/persons/my-matches` returns a match for the current user
 
 Tapping "This is me" calls `POST /events/{eid}/persons/{placeholder_id}/merge` with the user's person as target. `authorize_self_merge()` validates the match (email or display name).
 
+## Wireframe — Voided Settlement Display (JF-1B, JF-5)
+
+Settlements that have been voided display with audit fields showing who voided them and when:
+
+```
+│  Settlements                 │
+│  ┌──────────────────────────┐│
+│  │ Bob → Alice    $85.00    ││
+│  │ ✅ Confirmed · Jan 15     ││
+│  ├──────────────────────────┤│
+│  │ Dave → Alice   $42.00    ││
+│  │ ❌ Voided · Jan 18        ││
+│  │ by Alice · "entered in   ││
+│  │ error"                    ││
+│  └──────────────────────────┘│
+```
+
+The `voided_at` and `voided_by` fields are returned on settlement objects from `GET /events/{eid}/settlements`. Voided settlements are visually distinct (strikethrough or muted styling with the void reason displayed). These fields provide audit transparency so all participants can see when and why a settlement was reversed.
+
 ## Orchestration — Page Load
 
 ```
-1. GET /events/{eid}                 → event metadata (name, currency, status)
-2. GET /events/{eid}/persons         → person list + count
-3. GET /events/{eid}/transactions    → transaction list (recent)
-4. GET /events/{eid}/positions       → PFG positions + checksum
-5. GET /events/{eid}/settlements     → settlement list + count
-6. GET /events/{eid}/event-roles     → pending approvals (admin only)
-7. GET /events/{eid}/persons/my-matches  -> match suggestions for current user (member only)
+1. GET /events/{eid}                    → event metadata (name, currency, status, limits)
+2. GET /events/{eid}/persons            → person list + count
+3. GET /events/{eid}/transactions       → transaction list (recent)
+4. GET /events/{eid}/positions          → PFG positions + checksum (grouped by currency)
+5. GET /events/{eid}/settlements        → settlement list + count (includes voided_at/voided_by)
+6. GET /events/{eid}/event-roles        → pending approvals (admin only)
+7. GET /events/{eid}/persons/my-matches → match suggestions for current user (member only)
 
 Calls 2-7 parallelised after call 1 returns event metadata.
 ```
+
+Call 1 returns the event's `limits` field when the event is unfunded, containing `person_limit`, `transaction_limit`, `group_limit`, and current usage counts. This drives the free tier limits display. Call 4 returns positions keyed by currency for multi-currency balance rendering. Call 5 includes `voided_at` and `voided_by` audit fields on voided settlements.
 
 ## Actions
 
@@ -156,6 +226,7 @@ Calls 2-7 parallelised after call 1 returns event metadata.
 | Review transaction | Admin | → S10 | Navigation |
 | Event Settings ▸ | Admin | Edit modal | `PUT /events/{eid}` |
 | Funding Status ▸ | Admin | → S14 | Navigation |
+| Audit Log ▸ | Admin | Audit log view | `GET /events/{eid}/audit-log` |
 
 ## Smart Defaults
 
@@ -169,7 +240,11 @@ Calls 2-7 parallelised after call 1 returns event metadata.
 - **Invite link** always one tap to copy — quick access for admins who already know what they're doing
 - **Pending actions** banner only shows for admins with pending items
 - **Funding status** hidden unless event is unfunded and user is admin
-- **Summary stats** (total, people, txn count) computed from loaded data
+- **Summary stats** (total, people, txn count) computed from loaded data — grouped by currency when the event has multiple currencies
+- **Multi-currency balances** show one row per currency with independent owe/owed status and colour
+- **Free tier limits** section shown only for unfunded events, with usage counts and a link to fund
+- **Voided settlements** shown with strikethrough styling, void reason, and who voided them
+- **Audit log** link shown for admins only, hidden for members
 
 ## Error States
 

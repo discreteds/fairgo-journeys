@@ -40,12 +40,36 @@ admin only      admin only
 
 Voided settlements are preserved for audit but excluded from positions and settlement suggestions.
 
+## Settlement Guard: Closed Events (JF-1B)
+
+If the event has been **closed**, the "Settle Up" action is blocked. Users cannot create new settlements on a closed event.
+
+```
+S05 / S11
+  │
+  ├── "Settle Up" tapped
+  │     │
+  │     ├── [event open?] → S12 (normal flow)
+  │     │
+  │     └── [event closed?] → BLOCKED
+  │           "This event is closed. Reopen it to create new settlements."
+  │           [Reopen Event] (admin only)
+  │
+  ▼
+S12 → [event closed?] → blocked
+```
+
+- Existing settlements (proposed/confirmed) remain visible but cannot be modified
+- Paid settlements are unaffected (already final)
+- Admin must reopen the event (`POST /events/{eid}/reopen`) before creating new settlements
+- The "Settle Up" button appears disabled with a tooltip on closed events
+
 ## Transfer Points
 
 | From | Condition | To |
 |------|-----------|-----|
-| S05 → S12 | User taps "Settle Up" (owes money) | Direct to S12 |
-| S11 → S12 | User taps "Settle Up" on balances | Direct to S12 |
+| S05 → S12 | User taps "Settle Up" (owes money, event open) | Direct to S12 |
+| S11 → S12 | User taps "Settle Up" on balances (event open) | Direct to S12 |
 | S12 → S11 | All settlements paid | Back to balances (all clear) |
 
 ## Key Orchestration Sequence

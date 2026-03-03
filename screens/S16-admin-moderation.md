@@ -26,12 +26,33 @@
 │  │ [Review ▸]               ││
 │  └──────────────────────────┘│
 │                              │
+│  Modification Requests        │
+│  ┌──────────────────────────┐│
+│  │ ✉ Eve requests:          ││
+│  │ Add Person — "Frank"     ││
+│  │ "Need to add Frank who   ││
+│  │  shared the taxi"         ││
+│  │ Submitted: Mar 1, 2:30pm ││
+│  │ [Approve]  [Reject]      ││
+│  ├──────────────────────────┤│
+│  │ ✉ Bob requests:          ││
+│  │ Edit Expense — "Dinner"  ││
+│  │ "Split should be 7:7:1   ││
+│  │  not equal"               ││
+│  │ Submitted: Mar 1, 1:15pm ││
+│  │ [Review ▸]               ││
+│  └──────────────────────────┘│
+│                              │
 │  Identity Matches            │
 │  ┌──────────────────────────┐│
 │  │ "Dave" may be Dave K.    ││
 │  │ who just joined          ││
 │  │ Confidence: High (email) ││
 │  │ [Merge]  [Dismiss]       ││
+│  └──────────────────────────┘│
+│                              │
+│  ┌──────────────────────────┐│
+│  │ [View Audit Log ▸]       ││
 │  └──────────────────────────┘│
 │                              │
 │  ── No more pending ──      │
@@ -54,6 +75,49 @@
 └──────────────────────────────┘
 ```
 
+## Wireframe — Modification Request Detail
+
+When an admin taps "Review" on a modification request with proposed changes:
+
+```
+┌──────────────────────────────┐
+│  ← Modification Request      │
+├──────────────────────────────┤
+│                              │
+│  Requester: Bob              │
+│  Type: Edit Expense          │
+│  Submitted: Mar 1, 1:15pm   │
+│                              │
+│  Target: "Restaurant Dinner" │
+│                              │
+│  Proposed Changes:           │
+│  ┌──────────────────────────┐│
+│  │ Wine & Beer split:       ││
+│  │ Current: 1:1:1           ││
+│  │ Proposed: 7:7:1          ││
+│  └──────────────────────────┘│
+│                              │
+│  Bob's message:              │
+│  "I only had one beer (~$8). │
+│   Alice and Dave split the   │
+│   wine bottles."             │
+│                              │
+│  [Preview Impact]            │
+│                              │
+│  ┌──────────────────────────┐│
+│  │ [Approve]    [Reject]    ││
+│  └──────────────────────────┘│
+└──────────────────────────────┘
+```
+
+Each modification request shows:
+- **Requester** — who submitted the request
+- **Type** — `add_person`, `edit_expense`, `edit_split`, etc.
+- **Proposed changes** — structured diff of what would change
+- **Message** — free-text reason from the requester
+- **Timestamp** — when the request was submitted
+- **Admin actions** — Approve (auto-applies changes) or Reject (with optional reason)
+
 ## Orchestration — Page Load
 
 Draws from multiple API sources per event:
@@ -66,6 +130,9 @@ Draws from multiple API sources per event:
 3. GET /events/{eid}/persons
    → check for potential_matches in person data
    (or future: GET /events/{eid}/persons/matches)
+4. GET /events/{eid}/modification-requests
+   → filter where status = pending
+   → shows all pending modification requests from members
 ```
 
 If the user is admin of multiple events, repeat for each event (parallelised).
@@ -105,14 +172,102 @@ POST /events/{eid}/persons/merge
 
 Client-side only — mark as dismissed in local state. The match won't be shown again for this session. (Future: backend endpoint to permanently dismiss.)
 
+## Modification Request Queue
+
+Members cannot perform certain actions directly (adding persons, editing others' expenses). Instead they submit modification requests that enter this queue. The full API lifecycle:
+
+### Orchestration — List Modification Requests
+
+```
+GET /events/{eid}/modification-requests
+→ returns all modification requests for the event
+→ filterable by status: pending, approved, rejected, withdrawn
+```
+
+### Orchestration — View Modification Request Detail
+
+```
+GET /events/{eid}/modification-requests/{id}
+→ returns full request detail including proposed_changes and message
+```
+
+### Orchestration — Create Modification Request (Member)
+
+Initiated from other screens (S07, S10) — not directly from S16:
+
+```
+POST /events/{eid}/modification-requests
+  {
+    type: "add_person" | "edit_expense" | "edit_split" | ...,
+    target_type?: "transaction" | "line_item_split" | ...,
+    target_id?: resource_id,
+    proposed_changes: { ... },
+    message?: "Reason for the request"
+  }
+→ status: pending
+→ appears in admin's S16 queue
+```
+
+### Orchestration — "Approve" Modification Request
+
+Approval auto-applies the proposed changes. No separate PATCH call needed.
+
+```
+POST /events/{eid}/modification-requests/{id}/approve
+→ status: approved
+→ proposed changes are automatically applied to the target resource
+→ requester is notified: "Your request was approved ✓"
+→ remove from pending queue
+```
+
+### Orchestration — "Reject" Modification Request
+
+```
+POST /events/{eid}/modification-requests/{id}/reject
+  {reason?: "Explanation for the rejection"}
+→ status: rejected
+→ requester is notified with optional reason
+→ no changes applied
+→ remove from pending queue
+```
+
+### Orchestration — "Withdraw" Modification Request (Requester)
+
+The original requester can withdraw their own pending request:
+
+```
+POST /events/{eid}/modification-requests/{id}/withdraw
+→ status: withdrawn
+→ removed from pending queue
+→ no changes applied
+```
+
+## Orchestration — "View Audit Log" (Admin)
+
+Admin-only access to the full event audit log, showing all significant actions:
+
+```
+GET /events/{eid}/audit-log
+→ returns chronological list of all significant event actions
+→ includes: who performed the action, what changed, when
+→ covers: expense creation/editing/cancellation, person changes,
+   role changes, settlement actions, modification request resolutions
+```
+
+Accessible from the `[View Audit Log ▸]` link at the bottom of the moderation queue.
+
 ## Smart Defaults
 
-- Items grouped by type (roles, transactions, identities) for easy scanning
-- Badge count on S05 dashboard shows total pending items
+- Items grouped by type (roles, transactions, modification requests, identities) for easy scanning
+- Badge count on S05 dashboard shows total pending items (includes modification requests)
 - Inline actions for simple approvals — no need to navigate away
 - Transaction reviews navigate to S10 for full detail
+- Modification requests with complex proposed changes open a detail view with impact preview
+- Approval auto-applies changes — admin doesn't need to manually PATCH the target resource
+- Requesters can withdraw pending requests before admin action
 - Empty state is encouraging ("All caught up!")
 - This screen is also reachable from the S05 "⚠️ Pending actions" banner
+- Audit log provides full transparency into all event actions (admin-only)
 
 ## Relationship to S05
 

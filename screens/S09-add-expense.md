@@ -16,6 +16,8 @@ This is where "aggressive defaults" matters most. The common case — "I paid, e
 │                              │
 │  What for?     [Restaurant_] │
 │  Amount        [$620.00____] │
+│  Currency      [AUD ▼______] │
+│  Date          [Today ▼____] │
 │                              │
 │  Who paid?                   │
 │  ┌──────────────────────────┐│
@@ -57,6 +59,8 @@ When Alice is the only person in the event, split controls are replaced with a p
 │                              │
 │  What for?     [Pizza______] │
 │  Amount        [$45.00_____] │
+│  Currency      [AUD ▼______] │
+│  Date          [Today ▼____] │
 │                              │
 │  ┌──────────────────────────┐│
 │  │ ℹ️ Splits will be assigned ││
@@ -84,6 +88,8 @@ Tapping "Add another line item" expands the form:
 ├──────────────────────────────┤
 │                              │
 │  Description   [Restaurant_] │
+│  Currency      [AUD ▼______] │
+│  Date          [Today ▼____] │
 │                              │
 │  Who paid?                   │
 │  ● You (Alice)               │
@@ -137,10 +143,12 @@ When the event has ≤1 person, the expense is saved without splits:
 
 ```
 POST /events/{eid}/transactions
+  Headers: Idempotency-Key: <client-generated-uuid>
   {
     description: "Pizza",
     splits_status: "pending",
     currency: "AUD",
+    occurred_at: "2026-03-03T00:00:00Z",
     line_items: [{
       description: "Pizza",
       amount: 45.00,
@@ -151,6 +159,8 @@ POST /events/{eid}/transactions
 → S05 (event dashboard, expense shows "⏳ splits pending")
 ```
 
+> **Idempotency-Key** — Required on all `POST /events/{eid}/transactions` requests. The client generates a UUID v4 before submission. If the same key is re-sent (e.g. network retry, double-tap), the server returns the original response without creating a duplicate transaction. This is the financial mutation — idempotency prevents double-charges.
+
 When people are later added via S07, the backend auto-assigns splits to all pending transactions.
 
 ## Orchestration — "Save Expense" (Single Line Item, Equal Split)
@@ -159,9 +169,11 @@ When the event has ≥2 people, the normal split flow applies:
 
 ```
 POST /events/{eid}/transactions
+  Headers: Idempotency-Key: <client-generated-uuid>
   {
     description: "Restaurant",
     currency: "AUD",
+    occurred_at: "2026-03-03T00:00:00Z",
     line_items: [{
       description: "Restaurant",
       amount: 620.00,
@@ -182,13 +194,15 @@ POST /events/{eid}/transactions
 
 ## Orchestration — "Save Expense" (Multi-Line-Item)
 
-Same single `POST /events/{eid}/transactions` but with `line_items` array containing 2+ items, each with their own splits:
+Same single `POST /events/{eid}/transactions` (with `Idempotency-Key` header) but with `line_items` array containing 2+ items, each with their own splits:
 
 ```
 POST /events/{eid}/transactions
+  Headers: Idempotency-Key: <client-generated-uuid>
   {
     description: "Restaurant",
     currency: "AUD",
+    occurred_at: "2026-03-03T00:00:00Z",
     line_items: [
       {
         description: "Food",
@@ -236,7 +250,8 @@ This generates multiple `side: "expense"` splits with weights proportional to am
 | Split between | Everyone in event | Pick a group or "Custom" |
 | Split method | Equal (weight: 1 each) | Custom weights per person |
 | Line item description | Same as transaction description (single item mode) | Separate descriptions |
-| Currency | Event currency | Not overridable per-transaction |
+| Currency | Event currency | Picker to select a different currency (multi-currency events); records FX rate when overridden |
+| Date (occurred_at) | Current date/time ("Today") | Date picker to backdate expense to when it actually occurred |
 | Splits status | "assigned" (≥2 people) / "pending" (≤1 person) | Automatic based on person count |
 
 - Most expenses: fill "What for" + "Amount" → tap Save. Two fields, one tap.
@@ -245,6 +260,8 @@ This generates multiple `side: "expense"` splits with weights proportional to am
 - Multi-line-item is opt-in, not forced
 - "Custom weights" shows live-calculated shares as weights are adjusted
 - Modifier field is hidden by default (1.0); backend accepts 0.0-2.0. Values >1.0 represent surcharges (e.g. 1.5 = pays 150% share). Surface in UI for "advanced splitting" scenarios (dietary adjustments, service charges).
+- **Multi-currency:** Currency defaults to event currency but can be overridden via the currency picker. When a non-default currency is selected, the system records the FX rate at time of entry for balance calculations.
+- **Backdating:** The date field defaults to "Today" but allows selecting a past date, so expenses can be recorded with the date they actually occurred (e.g. adding yesterday's taxi after the fact).
 
 ## Error States
 

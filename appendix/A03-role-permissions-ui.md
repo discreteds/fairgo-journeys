@@ -24,6 +24,7 @@ What admin sees vs what member sees on every screen.
 | Inline Approve/Reject | ❌ Hidden | ✅ Visible |
 | ⚙️ Event Settings | ❌ Hidden | ✅ Visible |
 | 💳 Funding Status | ❌ Hidden | ✅ Visible |
+| 📋 Audit Log (JF-6) | ❌ Hidden | ✅ Visible (tap to view event audit trail) |
 
 ### S07 — Manage People
 
@@ -32,6 +33,7 @@ What admin sees vs what member sees on every screen.
 | Person list with status/PFG | ✅ Visible | ✅ Visible |
 | Settlement group colours | ✅ Visible | ✅ Visible |
 | + Add Person button | ❌ Hidden | ✅ Visible |
+| 📝 Request Add Person (JF-1C, JF-3) | ✅ Visible (submits modification request) | ❌ Hidden (admin adds directly) |
 | Person detail (tap) | Read-only (name, settlement group) | Full controls |
 | "This is me" (self-merge) | ✅ Visible (own placeholder only) | N/A (use admin merge) |
 | Merge suggestion | ❌ Hidden | ✅ Visible |
@@ -68,6 +70,7 @@ Both roles can add expenses. The difference is what happens after — member-cre
 | Line items + splits | ✅ Visible | ✅ Visible |
 | Per-person breakdown | ✅ Visible | ✅ Visible |
 | [Edit] button | ❌ Hidden | ✅ Visible |
+| [Suggest Change] (JF-3) | ✅ Visible (submits modification request) | ❌ Hidden (admin edits directly) |
 | [Approve] button | ❌ Hidden | ✅ Visible (when pending) |
 | [Request Changes] | ❌ Hidden | ✅ Visible (when pending) |
 | [Cancel] button | ❌ Hidden | ✅ Visible |
@@ -103,7 +106,11 @@ Funding is admin-only. Members never see this screen. If a member hits a funding
 
 | Element | Member | Admin |
 |---------|--------|-------|
-| Entire screen | ❌ Not reachable | ✅ Full access |
+| Entire screen | ❌ Not reachable (except own requests, see below) | ✅ Full access |
+| Modification request queue (JF-3) | ⚠️ Own requests only (read-only status) | ✅ Full access (approve/reject) |
+| [Approve] modification request | ❌ Hidden | ✅ Visible |
+| [Reject] modification request | ❌ Hidden | ✅ Visible |
+| 📋 Audit Log (JF-6) | ❌ Hidden | ✅ Visible (full event audit trail) |
 
 ## Visual Differentiation
 

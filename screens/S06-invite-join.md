@@ -70,6 +70,33 @@ Each person in the checklist can be in one of these states:
 │  ✓ Joined 2 hours ago         │
 ```
 
+## Invite Usage Tracking (JF-4A)
+
+The admin side displays usage tracking for each invite code. The `GET /events/{eid}/invite-codes` response includes usage data per code:
+
+```
+Active Codes
+┌──────────────────────────────────────┐
+│ General · 4 uses left                │
+│   Used by: Eve, Frank                │
+│   Created: 2 hours ago               │
+├──────────────────────────────────────┤
+│ For Dave · unused                    │
+│   Target: Dave (placeholder)         │
+│   Created: 1 hour ago                │
+├──────────────────────────────────────┤
+│ For Carol · claimed ✓                │
+│   Used by: Carol · 30 min ago        │
+└──────────────────────────────────────┘
+```
+
+Each code row shows:
+- **Use count** — how many times the code has been redeemed vs max uses
+- **Claimed by** — list of users who have joined using this code
+- **Status** — unused / partially used / fully used / expired
+
+The invite code list endpoint returns `usage_count`, `max_uses`, and a `claims[]` array with user display names and timestamps.
+
 ## Wireframe — Redeem Side (Deep Link)
 
 Not a screen the user navigates to directly — handled by the app router when opening an invite URL.
@@ -161,6 +188,69 @@ Uses the existing `phone_hint` field on the person model. No backend changes nee
 4. If potential_matches found → show merge prompt on S07
 5. → S05 (event dashboard)
 ```
+
+## Invite Paths
+
+### Path A: Group Link (Most Common)
+
+Admin copies group link from S06 → shares externally → invitee opens link → S02 → S05.
+
+### Path B: Personal Invite (Identity Resolution)
+
+Admin creates personal invite on S06 for a placeholder person → invitee opens link → S02 → auto-claim (no duplicate person) → S05.
+
+### Path C: Direct Code Entry
+
+Existing user on S03 → "Join with Code" → enters code → S05.
+
+### Path D: Person-Targeted Auto-Claim (NUP)
+
+Admin creates an invite linked to a specific person record (`target_person_id`). When the invitee opens the link:
+
+```
+Admin on S06:
+  [Create Personal Link] for "Dave" (placeholder)
+    → POST /events/{eid}/invite-codes
+        {target_person_id: dave_pid, max_uses: 1}
+    → code tied to Dave's person record
+
+Invitee (Dave) opens link:
+  fairgo.app/join/Dk9x2q
+    │
+    ├── Not logged in → S02 (register, code in session)
+    │     → POST /auth/register
+    │     → POST /events/join {invite_code: "Dk9x2q"}
+    │
+    └── Logged in → POST /events/join {invite_code: "Dk9x2q"}
+
+  Join response:
+    → target_person_id detected
+    → user AUTO-CLAIMED as Dave (no manual merge needed)
+    → resolution_status: claimed
+    → event_role created (status per event approval settings)
+    → S05 Event Dashboard
+```
+
+Path D eliminates the manual merge step entirely. The invite code carries the identity mapping, so the system knows exactly which placeholder person the new user should become.
+
+## Sponsorship on Join (NUP)
+
+When a user joins an event via invite, the event admin (or inviter) can **sponsor** the new user:
+
+- **Sponsorship** means the sponsor's paid tier covers the new user's participation in this event
+- The joining user does not need to take any action — sponsorship is applied automatically during the join flow
+- The sponsor must have an active paid tier with available sponsorship slots
+
+```
+Join flow with sponsorship:
+  POST /events/join {invite_code: "X7kQ2m"}
+    → system checks: does inviter/admin have sponsorship enabled?
+    → if yes: new user's participation covered by sponsor's tier
+    → new user gets paid-tier benefits without their own subscription
+    → no additional UI step for the joining user
+```
+
+Sponsorship status is visible on S05 (event dashboard) and S07 (manage people) for the admin.
 
 ## Smart Defaults
 

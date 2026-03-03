@@ -16,12 +16,21 @@ S11 Balances → outstanding debts visible
     → taps "Settle Up"
 ```
 
+Fetching settlement suggestions from the server:
+
+```
+S12 Settle Up → page loads
+    ⚡ GET /events/{eid}/settlement-suggestions
+    → server returns optimal payment plan (debt simplification)
+    → suggested settlements displayed
+```
+
 Creating settlements:
 
 ```
 S12 Settle Up → suggested settlements shown
     → taps [Create Settlement] for each suggested pair
-    ⚡ POST /events/{eid}/settlements × 3
+    ⚡ POST /events/{eid}/settlements × 3 (each with Idempotency-Key header)
        {from: Alice&Partner, to: Frank, amount: 142.50}
        {from: Dave, to: Bob, amount: 85.00}
        {from: Dave, to: Frank, amount: 10.00}
@@ -70,17 +79,22 @@ Alice closes the event:
 S05 → ⚙️ Event Settings → [Close Event]
     Confirm: "Close this event? No more expenses or settlements can be added."
     ⚡ POST /events/{eid}/close
-    -> activity recorded: "Closed event: Bali Trip" (visible in S17 Activity feed)
+    → activity recorded: "Closed event: Bali Trip" (visible in S17 Activity feed)
 S03 Home → event shows as closed/archived with muted styling
 ```
 
+> **Settlement guard (JF-1B):** Once the event is closed, navigating to S12 shows existing settlements in read-only but the [Create Settlement] and [+ Custom Settlement] buttons are disabled. The backend enforces this — `POST /events/{eid}/settlements` returns `409 Conflict` if the event is closed. Existing in-progress settlements (proposed/confirmed) can still be confirmed, paid, or voided after closure.
+
 ## Validates
 
+- Server-side settlement suggestions fetched before creation (JF-2A)
 - Full settlement lifecycle: proposed → confirmed → paid
 - Admin confirms, payer marks paid (role-appropriate actions)
 - Multiple settlements created from suggestions
+- Idempotency headers on all settlement mutations (CR-001)
 - Balance zeroing after all settlements paid
 - Event closure flow
+- Settlement guard prevents new settlements after closure (JF-1B)
 - Home screen reflecting closed event status
 
 ## Settlement Status Visibility

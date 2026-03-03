@@ -47,6 +47,7 @@
 ```
 1. POST /auth/register {display_name, email, password}
    → user created, access_token + refresh_token returned
+   → server auto-creates a free tier membership (no user action needed)
 2. Store tokens locally (localStorage or secure cookie)
 3. If invite code in session:
    3a. POST /events/join {invite_code: "..."}
@@ -55,8 +56,10 @@
        → response may include potential_matches
    3b. → S05 (event dashboard, "awaiting approval" banner)
 4. Else:
-   → S03 (home)
+   → S03 (home, free tier already active)
 ```
+
+> **Free tier auto-creation (JF-4A):** Every new registration automatically provisions a free tier membership server-side. The user does not need to select a plan or interact with S13 (Membership) before using the app. They land on S03 with the free tier already active, ready to create or join events within free tier limits.
 
 ## Orchestration — "Log In"
 

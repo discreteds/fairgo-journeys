@@ -65,12 +65,21 @@ Expenses and people are equally available from S05. The above order is recommend
 The "zero to first event" path triggers these backend calls:
 
 ```
-POST /auth/register              # 1. Create account
+POST /auth/register              # 1. Create account + free tier membership (auto)
 POST /events                     # 2. Create event (auto: person + admin role)
 POST /events/{eid}/invite-codes  # 3. Auto-generate invite link (NOT shared yet)
 ```
 
 Three API calls. User filled two forms (register + event name). Everything else was automatic. The invite code is generated but not shared until the user reaches S06.
+
+### Free Tier Auto-Creation (JF-4A)
+
+Registration automatically creates a **free tier membership** for the new user. There is no tier selection step — free is the default. This means:
+
+- The user immediately has access to create events within free tier limits
+- No onboarding friction from tier/plan choices
+- Upgrade paths are available later from account settings
+- If the user joins an event where the admin has sponsorship enabled, they may receive paid-tier benefits without upgrading (see R04 Invitation Rail)
 
 ## Scenarios Using This Rail
 

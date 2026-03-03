@@ -105,23 +105,34 @@ Expenses and people are equally accessible from S05 in either order. The above i
 
 | Screen | Scenarios | Rails | Backend Calls on Load |
 |--------|-----------|-------|----------------------|
-| S01 Welcome | SC01, SC02 | R01 | 0 |
-| S02 Register/Login | SC01, SC02 | R01 | 1 (auth) |
-| S03 Home | SC01, SC04 | R01 | 2 (events + positions) |
-| S04 Create Event | SC01, SC03, SC04 | R01 | 0 |
+| S01 Welcome | SC01, SC02, SC07 | R01 | 0 |
+| S02 Register/Login | SC01, SC02, SC07, SC08 | R01 | 1 (auth) |
+| S03 Home | SC01, SC04, SC09 | R01 | 2 (events + positions) |
+| S04 Create Event | SC01, SC03, SC04, SC09, SC10 | R01 | 0 |
 | S05 Event Dashboard | ALL | R01-R06 | 6 (parallel) |
 | S06 Prepare & Share | SC01, SC02 | R04 | 2 (persons + invite-codes) |
-| S07 Manage People | SC01, SC03 | R02, R06 | 3 |
-| S08 Manage Groups | SC03 | R06 | 2 |
-| S09 Add Expense | SC01, SC02, SC04, SC06 | R02 | 0 (pre-loaded) |
-| S10 Expense Detail | SC05 | R02, R06 | 3 |
-| S11 Balances | SC03, SC04, SC05 | R02, R03 | 1 |
-| S12 Settle Up | SC03, SC04, SC05 | R03 | 1 (positions) |
-| S13 Membership | SC06 | R05 | 1 |
-| S14 Event Funding | SC06 | R05, R06 | 1 |
-| S15 Profile | — | R05 | 2 |
-| S16 Admin Moderation | SC02 | R06 | 3 |
-| S17 Activity | — | — | derived (no endpoint yet) |
+| S07 Manage People | SC01, SC03, SC07, SC08, SC09 | R02, R06 | 3 |
+| S08 Manage Groups | SC03, SC11 | R06 | 2 |
+| S09 Add Expense | SC01, SC02, SC04, SC06, SC08, SC11 | R02 | 0 (pre-loaded) |
+| S10 Expense Detail | SC05, SC08, SC11, SC12 | R02, R06 | 3 |
+| S11 Balances | SC03, SC04, SC05, SC11, SC12 | R02, R03 | 1 |
+| S12 Settle Up | SC03, SC04, SC05, SC12 | R03 | 1 (positions) |
+| S13 Membership | SC06, SC10 | R05 | 1 |
+| S14 Event Funding | SC06, SC10 | R05, R06 | 1 |
+| S15 Profile | SC09 | R05 | 2 |
+| S16 Admin Moderation | SC02, SC08, SC12 | R06 | 3 |
+| S17 Activity | SC09 | — | 1 (`GET /users/me/activity`) |
+
+### SC07–SC12 Coverage
+
+| Scenario | Name | Screens Referenced |
+|----------|------|--------------------|
+| SC07 | Charlie Claims Person | S01, S02, S05, S07 |
+| SC08 | Member Permission Walls | S05, S07, S09, S10, S16 |
+| SC09 | Multi-Event Power User | S03, S04, S05, S07, S15, S17 |
+| SC10 | Quota Exhaustion Recovery | S04, S05, S13, S14 |
+| SC11 | Complex Group Splits | S05, S08, S09, S10, S11 |
+| SC12 | Dispute and Modification | S05, S10, S11, S12, S16 |
 
 ### Observations
 
@@ -129,5 +140,5 @@ Expenses and people are equally accessible from S05 in either order. The above i
 - **S06 now serves SC01** — expanded from invite-only to "Prepare & Share" with person checklist, making it part of the primary admin flow.
 - **S09 supports split-pending** — no longer requires people before expense entry, enabling the "capture first" principle.
 - **S07 shows inline split preview** — person creation response now includes affected transactions, shown inline without extra navigation.
-- **S17 (Activity)** isn't referenced by any scenario or rail. Could be deferred or merged into S05 as an activity tab.
+- **S17 (Activity)** now has a dedicated endpoint (`GET /users/me/activity`) and is referenced in SC09 (multi-event power user).
 - **S15 (Profile)** is utility — low priority for initial implementation.

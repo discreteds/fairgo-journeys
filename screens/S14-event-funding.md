@@ -120,8 +120,24 @@ POST /events/{eid}/funding/cost-spread
 
 ```
 GET /events/{eid}/funding
-→ returns: funding_status, funding_type, cost_spread status
+→ returns: funding_status, funding_type, cost_spread status, limits object
 ```
+
+> **Funding discovery (JF-2B):** The funding endpoint always returns a data response, even for unfunded events. It does NOT return a 404 for unfunded events. Instead, unfunded events return `funding_status: "none"` with the current limits. The frontend handles the "no funding" state as a normal data response, not an error.
+
+The `limits` object in the response includes:
+
+| Field | Description |
+|-------|-------------|
+| `person_limit` | Maximum persons allowed (e.g. 5 for unfunded) |
+| `transaction_limit` | Maximum transactions allowed (e.g. 1 for unfunded) |
+| `group_limit` | Maximum groups allowed (e.g. 1 for unfunded) |
+| `person_count` | Current number of persons |
+| `transaction_count` | Current number of transactions |
+| `group_count` | Current number of groups |
+| `can_add_person` | Boolean — whether the event can accept more persons |
+| `can_add_transaction` | Boolean — whether the event can accept more transactions |
+| `can_add_group` | Boolean — whether the event can accept more groups |
 
 If unfunded, also needs membership quota info:
 

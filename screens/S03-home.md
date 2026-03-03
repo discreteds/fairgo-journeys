@@ -12,14 +12,23 @@
 │  Fair Go          ⚙️ 👤 │
 ├─────────────────────────┤
 │                         │
+│  Pending Invitations    │
+│  ┌─────────────────────┐│
+│  │ Ski Trip            ││
+│  │ Invited by Alice    ││
+│  │ [Accept]  [Decline] ││
+│  └─────────────────────┘│
+│                         │
 │  Your Events            │
 │  ┌─────────────────────┐│
 │  │ Bali Trip           ││
+│  │ 6 people · 3 txns   ││
 │  │ You owe $142.50     ││
 │  │ 3 unsettled         ││
 │  └─────────────────────┘│
 │  ┌─────────────────────┐│
 │  │ Friday Dinner       ││
+│  │ 4 people · 8 txns   ││
 │  │ You're owed $23.00  ││
 │  │ All settled ✓       ││
 │  └─────────────────────┘│
@@ -67,9 +76,14 @@
 
 ```
 1. GET /events?include=my_position   → event list with embedded position summaries
+2. GET /events/pending               → events with pending invitations for this user
 ```
 
 Each event includes a `my_position` object with `person_id`, `total_paid`, `total_consumed`, and `net`. This eliminates the per-event position call. For events where the user has no person, `my_position` is null.
+
+Each event in the list also includes `person_count` and `transaction_count` summary fields, displayed on the event card as "N people . M txns".
+
+**Pending invitations (JF-2B):** `GET /events/pending` returns events where the user has been invited but hasn't yet accepted. Each pending event includes the event name and the display name of the user who invited them. The section is hidden when there are no pending invitations.
 
 ## Orchestration — "+ New Event"
 
@@ -86,6 +100,22 @@ Each event includes a `my_position` object with `person_id`, `total_paid`, `tota
 4. → S05 (event dashboard, pending approval banner if applicable)
 ```
 
+## Orchestration — Accept Pending Invitation
+
+```
+1. POST /events/join {invite_code: "..."}
+   → event_role created, user joins event
+2. → S05 (Event Dashboard for accepted event)
+```
+
+## Orchestration — Decline Pending Invitation
+
+```
+1. POST /events/{eid}/invitations/{iid}/decline
+   → invitation removed
+2. Refresh pending list (remove declined event)
+```
+
 ## Orchestration — Event Card Tap
 
 ```
@@ -94,6 +124,8 @@ Each event includes a `my_position` object with `person_id`, `total_paid`, `tota
 
 ## Smart Defaults
 
+- Pending invitations section shown above the events list when invitations exist, hidden when empty
+- Event cards show `person_count` and `transaction_count` as "N people . M txns" summary line
 - Events sorted by most recent activity (updated_at)
 - Net position shown as "You owe $X" (red) or "You're owed $X" (green) — derived from user's PFG net position
 - "All settled ✓" badge when user's PFG net = $0.00

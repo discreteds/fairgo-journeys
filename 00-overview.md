@@ -37,6 +37,9 @@ Map the user journeys for a web UI sitting on top of the Fair Go expense-splitti
 | Expense | TRANSACTION + LINE_ITEM(s) | Envelope with one or more line items |
 | Line Item | LINE_ITEM + LINE_ITEM_SPLIT(s) | Atomic financial unit with per-person weights |
 | Balance | Position (PFG net) | How much a settlement group owes or is owed |
+| FX Rate | FX_RATE | Exchange rate record stored per event. Used when expenses are recorded in a currency different from the event's base currency. Contains rate, source, and timestamp |
+| Modification Request | MODIFICATION_REQUEST | A request from a member to make a change that requires admin approval (e.g., add person, edit expense). Created via `POST /modification-requests`, approved/rejected by admin with auto-apply |
+| Audit Log | AUDIT_LOG | Chronological record of all significant actions in an event. Admin-only access via `GET /events/{eid}/audit-log` |
 
 ## Document Map
 
@@ -70,7 +73,13 @@ ui-journeys/
 │   ├── SC03-family-holiday-shared-pfg.md
 │   ├── SC04-housemates-monthly-bills.md
 │   ├── SC05-settle-and-close.md
-│   └── SC06-free-user-hits-limits.md
+│   ├── SC06-free-user-hits-limits.md
+│   ├── SC07-charlie-claims-person.md
+│   ├── SC08-member-permission-walls.md
+│   ├── SC09-multi-event-power-user.md
+│   ├── SC10-quota-exhaustion-recovery.md
+│   ├── SC11-complex-group-splits.md
+│   └── SC12-dispute-modification.md
 │
 ├── rails/
 │   ├── R01-onboarding-rail.md
@@ -83,5 +92,8 @@ ui-journeys/
 └── appendix/
     ├── A01-orchestrations.md
     ├── A02-smart-defaults.md
-    └── A03-role-permissions-ui.md
+    ├── A03-role-permissions-ui.md
+    ├── A04-sc01-api-changes.md
+    ├── A05-gap-closure-changelog.md
+    └── A06-gap-analysis-matrix.md
 ```

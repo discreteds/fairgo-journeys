@@ -41,7 +41,7 @@ S05 Event Dashboard ◄─── admin approves ───┘
 | S02 → S05 | Invitee registers with code | Auto-join, pending approval |
 | S05 (admin) → S05 (invitee) | Admin approves | Invitee gains full access |
 
-## Three Invite Paths
+## Four Invite Paths
 
 ### Path A: Group Link (Most Common)
 ```
@@ -58,6 +58,63 @@ Admin creates personal invite on S06 for placeholder Dave
 ```
 Existing user on S03 → "Join with Code" → enters code → S05
 ```
+
+### Path D: Person-Targeted Auto-Claim (NUP)
+
+Admin creates a person-targeted invite linked to a specific placeholder person. The invitee is **automatically claimed** as that person on join — no manual merge step needed.
+
+```
+S05 → S06 (admin creates person-targeted invite for "Dave")
+         │
+         │  POST /events/{eid}/invite-codes
+         │    {target_person_id: dave_pid, max_uses: 1}
+         │
+         ▼
+Dave receives link → opens fairgo.app/join/Dk9x2q
+         │
+         ▼
+S01 Welcome (deep link detected)
+         │
+         ▼
+S02 Register / Login
+         │
+         ├── ⚡ POST /auth/register (or /auth/login)
+         │
+         ├── ⚡ POST /events/join {invite_code: "Dk9x2q"}
+         │     → target_person_id detected
+         │     → auto-claimed as "Dave" (no duplicate, no merge)
+         │     → resolution_status: claimed
+         │
+         ▼
+S05 Event Dashboard (auto-claimed as Dave)
+```
+
+Rail notation: `S06 → S02 (register) → S05 (auto-claimed)`
+
+This path skips the manual person merge/claim step entirely. The invite code carries the identity mapping.
+
+## Sponsorship on Join (NUP)
+
+During the join flow (all paths), the system checks whether the inviter or event admin has **sponsorship** enabled:
+
+```
+POST /events/join
+  │
+  ├── Check: does inviter/admin have active sponsorship?
+  │     │
+  │     ├── YES → new user covered by sponsor's paid tier
+  │     │         (no action needed from joining user)
+  │     │
+  │     └── NO → new user uses their own tier (free by default)
+  │
+  ▼
+S05 Event Dashboard
+```
+
+- Sponsorship is automatic — no additional UI step for the joining user
+- The sponsor's paid tier must have available sponsorship slots
+- Sponsorship status visible to admin on S07 (Manage People)
+- Applies to all invite paths (A, B, C, D)
 
 ## S06 Prepare & Share — Admin Flow
 

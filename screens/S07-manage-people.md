@@ -38,8 +38,13 @@
 │  🔴 Solo settlement group    │
 │                              │
 │       ( + Add Person )       │  ← admin only
+│   ( ✉ Request Add Person )   │  ← member only
 └──────────────────────────────┘
 ```
+
+**Role-aware actions:**
+- **Admin** sees `+ Add Person` — creates the person directly via `POST /events/{eid}/persons`
+- **Member** sees `✉ Request Add Person` — submits a modification request via `POST /events/{eid}/modification-requests` with `type: "add_person"`. The request enters the admin's moderation queue (S16). The person is only created once an admin approves.
 
 Each person row shows:
 - **Line 1:** Status icon + display name + resolution badge
@@ -179,6 +184,8 @@ When there are multiple affected expenses, a "Review All Splits" action appears:
 
 PFG data (group_id, group_name, is_singleton) is embedded in each person response via `_person_to_dict()`. No per-person PFG call needed.
 
+**Note:** Merged persons (resolution_status: `merged`) are excluded from match suggestion results returned by `/persons/my-matches`. This prevents the person claim/match autocomplete from suggesting persons that have already been merged into another identity.
+
 ## Orchestration — "Add Person" (Admin)
 
 ```
@@ -199,13 +206,38 @@ PFG data (group_id, group_name, is_singleton) is embedded in each person respons
 4. Refresh person list
 ```
 
+## Orchestration — "Request Add Person" (Member)
+
+Members cannot create persons directly. Instead they submit a modification request for admin approval.
+
+```
+1. Show inline form: display name (required), email hint (optional), phone hint (optional)
+2. POST /events/{eid}/modification-requests
+     {
+       type: "add_person",
+       proposed_changes: {
+         display_name: "...",
+         email_hint?: "...",
+         phone_hint?: "..."
+       },
+       message?: "Reason for adding this person"
+     }
+   → status: pending
+   → "Request sent to admin ✓"
+3. Request appears in admin's S16 moderation queue
+4. On admin approval: person is auto-created (no separate POST needed)
+   → member is notified of approval
+5. On admin rejection: member is notified with optional reason
+```
+
 ## Orchestration — "Adjust Split" (Tapped Expense Row)
 
 ```
 1. User taps an expense row in the split preview
 2. Show split adjustment form (weight per person)
-3. PUT /events/{eid}/transactions/{tid}
-     {line_items: [{splits: [updated splits with new weights]}]}
+3. PATCH /events/{eid}/transactions/{tid}/line-items/{lid}/splits
+     {splits: [{person_id, weight}, ...]}
+   → dedicated split editing endpoint (see also S10)
 4. Refresh split preview to show updated shares
 ```
 

@@ -21,11 +21,20 @@ S04 → "Weekend Bay Trip"
     → back to S03
 ```
 
-Dave's home screen shows all events with position summaries:
+Dave's home screen shows all events with position summaries, plus any pending invitations:
 
 ```
 S03 Home
     ⚡ GET /events?include=my_position
+    ⚡ GET /events/pending
+       → returns events where Dave has been invited but not yet joined
+    → Pending events section (if any):
+    ┌──────────────────────────────────┐
+    │ 📩 Alice's Dinner Party  invite │
+    │    Invited by: Alice            │
+    │    [Accept] [Decline]           │
+    └──────────────────────────────────┘
+
     → 3 event cards:
     ┌──────────────────────────────────┐
     │ 🏠 Housemates        ongoing    │
@@ -84,6 +93,7 @@ S15 Profile & Settings
 
 S03 → taps notification bell
 S17 Activity Feed / Notifications
+    ⚡ GET /users/me/activity
     → Recent activity across all events:
       - "Electricity $180 added to Housemates" — 5m ago
       - "Alice joined Work Lunch Friday" — 10m ago
@@ -93,6 +103,7 @@ S17 Activity Feed / Notifications
 ## Validates
 
 - Event list with inline position summaries (`?include=my_position`, P1 gap)
+- Pending event invitations via `GET /events/pending` shown on Home screen
 - Context switching between events preserves correct state
 - Person reuse across events creates separate records (event-scoped isolation)
 - Activity feed (S17) aggregates across events (P3 gap)

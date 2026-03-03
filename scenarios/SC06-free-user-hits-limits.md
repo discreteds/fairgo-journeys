@@ -6,6 +6,8 @@
 
 ## Narrative
 
+> **Free tier auto-creation (JF-4A):** Dave's free tier membership was automatically created when he registered (see S02). He did not need to manually select a plan — the free tier was provisioned server-side on account creation, so Dave could immediately create events within free tier limits.
+
 Dave creates an event and starts using it within free limits:
 
 ```

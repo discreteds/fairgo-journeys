@@ -51,8 +51,16 @@ Alice sees the request in her moderation queue:
 
 ```
 Alice's S05 → "⚠️ 1 modification request"
-S16 Admin Moderation Queue
-    → Bob's request:
+→ Screen: S16
+
+Step 1: Alice views pending requests
+    ⚡ GET /events/{eid}/modification-requests
+    → Bob's request listed: "Wine & Beer: weight change"
+
+Step 2: Alice reviews the detail
+    → taps [Review ▸]
+    ⚡ GET /events/{eid}/modification-requests/{rid}
+    → Bob's request detail:
       "Wine & Beer: Bob requests weight change"
       Current: 1:1:1 ($50/$50/$50)
       Proposed: 7:7:1 ($70/$70/$10)
@@ -64,10 +72,12 @@ S16 Admin Moderation Queue
       Dave:  $99.11 → $119.11 (pays $20 more)
       Checksum: still $0.00 ✓
 
+Step 3: Alice approves (auto-applies)
     → Alice taps [Approve]
-    ⚡ POST /events/{eid}/modification-requests/{rid}/resolve {status: "approved"}
-    ⚡ PATCH /events/{eid}/transactions/{tid}/line-items/{lid}
-       {consumption_splits: [{person_id: alice, weight: 7}, {person_id: dave, weight: 7}, {person_id: bob, weight: 1}]}
+    ⚡ POST /events/{eid}/modification-requests/{rid}/approve
+    → status: approved
+    → proposed split changes auto-applied (no separate PATCH needed)
+       weights updated: Alice 7, Dave 7, Bob 1
     → splits recalculated
     → Bob notified: "Your modification request was approved ✓"
 ```
@@ -114,10 +124,24 @@ S12 → settlement amount is now wrong ($99.11 ≠ $59.11)
 Alice's S16 → reviews Bob's request
     → taps [Reject]
     → adds note: "You had three beers, not one. The split is fair."
-    ⚡ POST /events/{eid}/modification-requests/{rid}/resolve
-       {status: "rejected", note: "You had three beers, not one."}
+    ⚡ POST /events/{eid}/modification-requests/{rid}/reject
+       {reason: "You had three beers, not one. The split is fair."}
+    → status: rejected
     → Bob notified: "Your modification request was rejected"
-    → Bob sees Alice's note
+    → Bob sees Alice's reason
+    → no splits changed
+```
+
+## Variant: Bob Withdraws His Request
+
+Bob can withdraw his own pending request before Alice acts on it:
+
+```
+Bob's S10 → sees his pending modification request indicator
+    → taps [Withdraw Request]
+    ⚡ POST /events/{eid}/modification-requests/{rid}/withdraw
+    → status: withdrawn
+    → request removed from Alice's S16 queue
     → no splits changed
 ```
 
@@ -125,9 +149,18 @@ Alice's S16 → reviews Bob's request
 
 - Transaction detail view with per-person split breakdown (S10)
 - Modification request creation with suggested changes
+- Full 6-endpoint modification request lifecycle:
+  - `POST /events/{eid}/modification-requests` — create request
+  - `GET /events/{eid}/modification-requests` — list requests
+  - `GET /events/{eid}/modification-requests/{id}` — view detail
+  - `POST /events/{eid}/modification-requests/{id}/approve` — approve (auto-applies)
+  - `POST /events/{eid}/modification-requests/{id}/reject` — reject with reason
+  - `POST /events/{eid}/modification-requests/{id}/withdraw` — withdraw by requester
+- Auto-apply on approval — no separate PATCH call needed
 - Admin notification and moderation queue (S16)
 - Approval flow with split recalculation
-- Rejection flow with admin notes
+- Rejection flow with admin reason
+- Withdrawal flow (requester can cancel pending request)
 - Impact preview before approval (shows position changes)
 - Checksum maintained after split modifications
 - Settlement void-and-recreate when positions change (F1 gap)

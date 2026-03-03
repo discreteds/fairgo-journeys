@@ -60,7 +60,8 @@ Every place in the UI where we make an assumption on behalf of the user.
 | **Split method** | **Equal (weight: 1 each)** | Custom weights per person |
 | Number of line items | 1 (single item mode) | "+ Add another line item" |
 | Line item description | Same as transaction description | Separate descriptions per item |
-| Currency | Event currency (not overridable) | — |
+| Currency | Event currency | Picker to select a different currency (multi-currency events); records FX rate when overridden |
+| Date (occurred_at) | Current date/time ("Today") | Date picker to backdate expense to when it actually occurred |
 | Modifier | 1.0 (hidden) | Future: child/dietary adjustments |
 
 **Impact:** For the most common expense (one person paid, split equally among everyone), the user fills **2 fields** (description + amount) and taps **Save**. Everything else is defaulted.
@@ -77,7 +78,7 @@ Every place in the UI where we make an assumption on behalf of the user.
 
 | Context | Default | Override |
 |---------|---------|----------|
-| Suggested settlements | Auto-computed (debt simplification) | Create custom settlement |
+| Suggested settlements | Server-computed via `GET /events/{eid}/settlement-suggestions` (debt simplification) | Create custom settlement |
 | From/to groups | Pre-filled from suggestion | Editable via custom |
 | Amount | Pre-filled from net positions | Editable via custom |
 
