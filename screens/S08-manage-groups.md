@@ -125,3 +125,4 @@ The backend supports `GET /events/{eid}/groups/{gid}/expand` which returns sugge
 | Group limit reached (unfunded) | "This event needs funding to add more groups" → S14 |
 | Delete group with active splits | Backend allows this — splits reference persons, not groups |
 | Add member to singleton group | Backend auto-creates a new shared group with both members. Original singleton remains as-is. |
+| Duplicate member (409, CR-020) | "This person is already a member of this group" — `DUPLICATE_MEMBER` error code |

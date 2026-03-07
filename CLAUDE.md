@@ -71,3 +71,16 @@ When editing docs, use the correct UI-facing terms:
 - **Capture first, share last:** Expenses can be entered before people are added (split-pending state). Splits auto-assign when people are added.
 - **Role-aware, not role-separated:** Admin and member see the same screens with different controls visible. UI hides; backend enforces.
 - **Mobile-first responsive:** Stacked layouts expanding on desktop. Bottom nav (mobile) / sidebar (desktop).
+
+## Recent API Capabilities (CR-015 through CR-020)
+
+These changes are reflected across screen specs and appendix docs:
+
+- **Idempotency scope** (CR-015): Only resource-creation endpoints (`POST` creating new records) require `Idempotency-Key`. State-transition endpoints (`/confirm`, `/pay`, `/void`, `/approve`, `/reject`, `/deactivate`) are naturally idempotent — no key needed. See A07.
+- **Equal-split shortcut** (CR-016): `split_mode: "equal"` with `payer_id` and optional `split_among` on line items. Mutually exclusive with `splits` array (422). See S09.
+- **Effectively settled** (CR-015): `effectively_settled` boolean on positions response. Server-authoritative, 1 cent per participant tolerance. See S11.
+- **Over-settlement guard** (CR-015): Settlement amounts > 101% of outstanding rejected with 422 `OVER_SETTLEMENT`. See S12.
+- **Invite lifecycle** (CR-019/020): `max_uses` and `target_user_id` on invite codes; `POST .../deactivate` endpoint; 410 for exhausted/deactivated codes; 403 `INVITE_NOT_FOR_YOU` for wrong user. See S06.
+- **Batch person creation** (CR-019): `POST /events/{id}/persons/batch` accepts array. See S07.
+- **Template provenance** (CR-018): `source_template_id`, `source_template_version`, `settlement_count` on events; `pfg_presets` on templates. See S05, S19.
+- **New error codes**: `OVER_SETTLEMENT` (422), `UNFUNDED_LIMIT` (422), `PENDING_MEMBER` (403), `DUPLICATE_MEMBER` (409), `INVITE_NOT_FOR_YOU` (403). See A05.

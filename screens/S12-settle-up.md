@@ -5,7 +5,7 @@
 **Rails:** R03 (Settlement), R09 (Decomposition)
 **Scenarios:** SC03, SC04, SC05, SC13, SC17, SC18, SC24, SC25
 
-> **Idempotency requirement (CR-001):** All settlement mutation endpoints (`POST` create, confirm, pay, void) require an `Idempotency-Key: <client-generated-uuid>` header. The client generates a UUID v4 before each mutation and includes it in the request. If the same key is sent twice, the server returns the original response without re-executing the operation. This prevents duplicate settlements from network retries or double-taps.
+> **Idempotency (CR-001, CR-015):** Resource-creation endpoints (`POST` create) require an `Idempotency-Key: <client-generated-uuid>` header. State-transition endpoints (confirm, pay, void) do NOT require Idempotency-Key — they are naturally idempotent.
 
 ## Wireframe — Suggested Settlements
 
@@ -187,8 +187,21 @@ Suggested settlements are computed **server-side** via `GET /events/{eid}/settle
 POST /events/{eid}/settlements
   Headers: Idempotency-Key: <client-generated-uuid>
   {from_group_id, to_group_id, amount, currency,
+   period_label,
    source_currency, target_currency, fx_rate_used}
 → settlement created (status: proposed)
+```
+
+`period_label` (optional string, CR-015): Free-text label for the settlement period (e.g., "March 2026"). Useful for ongoing events to identify which billing cycle a settlement covers.
+
+### Over-Settlement Guard (CR-015)
+
+The server rejects settlement amounts exceeding 101% of the outstanding balance between two PFGs. This prevents accidental over-payment while allowing a small tolerance for rounding.
+
+```
+POST /events/{eid}/settlements {amount: "<over 101% of outstanding>"}
+→ 422 Unprocessable Entity
+  {code: "OVER_SETTLEMENT", outstanding: "142.50", attempted: "200.00"}
 ```
 
 When the event involves multiple currencies (CR-002), the settlement includes `source_currency` (payer's currency), `target_currency` (payee's currency), and `fx_rate_used` (rate at time of creation). The UI displays both original and converted amounts:
@@ -205,7 +218,6 @@ When the event involves multiple currencies (CR-002), the settlement includes `s
 
 ```
 POST /events/{eid}/settlements/{sid}/confirm
-  Headers: Idempotency-Key: <client-generated-uuid>
 → status: confirmed
 ```
 
@@ -213,7 +225,6 @@ POST /events/{eid}/settlements/{sid}/confirm
 
 ```
 POST /events/{eid}/settlements/{sid}/pay
-  Headers: Idempotency-Key: <client-generated-uuid>
 → status: paid
 ```
 
@@ -221,7 +232,6 @@ POST /events/{eid}/settlements/{sid}/pay
 
 ```
 POST /events/{eid}/settlements/{sid}/void
-  Headers: Idempotency-Key: <client-generated-uuid>
 → status: voided
 → response includes voided_at, voided_by
 → positions recalculate (voided settlement excluded)
@@ -308,3 +318,4 @@ Write-offs are created via `POST /events/{eid}/write-offs` and recorded in the a
 | Duplicate request (idempotency) | Server returns original response (transparent to user) |
 | Invalid amount | "Amount must be greater than zero" |
 | Confirm non-proposed | Backend enforces status flow — button hidden if not applicable |
+| Over-settlement (CR-015) | "Settlement amount exceeds outstanding balance" — 422 `OVER_SETTLEMENT` with `outstanding` and `attempted` amounts |

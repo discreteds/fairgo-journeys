@@ -282,7 +282,9 @@ When `event.status = closed`, admin sees a read-only dashboard with a reopen opt
 ## Orchestration — Page Load
 
 ```
-1. GET /events/{eid}                    → event metadata (name, currency, status, limits)
+1. GET /events/{eid}                    → event metadata (name, currency, status, limits,
+                                           source_template_id, source_template_version,
+                                           settlement_count)
 2. GET /events/{eid}/persons            → person list + count
 3. GET /events/{eid}/transactions       → transaction list (recent)
 4. GET /events/{eid}/positions          → PFG positions + checksum (grouped by currency)
@@ -294,7 +296,20 @@ When `event.status = closed`, admin sees a read-only dashboard with a reopen opt
 Calls 2-8 parallelised after call 1 returns event metadata.
 ```
 
-Call 1 returns the event's `limits` field when the event is unfunded, containing `person_limit`, `transaction_limit`, `group_limit`, and current usage counts. This drives the free tier limits display. Call 4 returns positions keyed by currency for multi-currency balance rendering. Call 5 includes `voided_at` and `voided_by` audit fields on voided settlements.
+Call 1 returns the event's `limits` field when the event is unfunded, containing `person_limit`, `transaction_limit`, `group_limit`, and current usage counts. This drives the free tier limits display. Call 1 also returns `source_template_id`, `source_template_version` (if created from a template, CR-018), and `settlement_count` (number of paid settlements, CR-018). Call 4 returns positions keyed by currency for multi-currency balance rendering. Call 5 includes `voided_at` and `voided_by` audit fields on voided settlements.
+
+### Template Provenance Display (CR-018)
+
+When `source_template_id` is present on the event, the dashboard shows a provenance indicator:
+
+```
+│  ┌──────────────────────────┐│
+│  │ Created from template     ││
+│  │ "Friday Pub Crew" (v3)    ││
+│  └──────────────────────────┘│
+```
+
+This is informational only — no actions are attached. The `settlement_count` is available for display in event stats if desired (e.g. "3 settlements completed").
 
 ## Actions
 
@@ -350,4 +365,5 @@ Call 1 returns the event's `limits` field when the event is unfunded, containing
 | Event not found | "This event doesn't exist or you don't have access" → S03 |
 | Pending approval | Read-only view with approval banner |
 | Event closed | Read-only view with "Event closed" banner, no FAB, admin sees [Reopen Event] |
-| Unfunded limit hit | "This event needs funding to continue" → link to S14 (admin) or message to contact admin (member) |
+| Unfunded limit hit (`UNFUNDED_LIMIT`, 422) | Shows `current_count` and `limit` from error detail: "Person limit reached (4/5). This event needs funding to add more." → link to S14 (admin) or "Contact your event admin" (member) |
+| Pending member action (`PENDING_MEMBER`, 403) | "Your access is pending approval. You can view but not modify this event." |

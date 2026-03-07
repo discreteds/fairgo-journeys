@@ -206,6 +206,27 @@ PFG data (group_id, group_name, is_singleton) is embedded in each person respons
 4. Refresh person list
 ```
 
+## Orchestration — "Add People" (Batch, Admin)
+
+For events with many participants, the admin can add multiple persons at once:
+
+```
+POST /events/{eid}/persons/batch
+  {
+    persons: [
+      {display_name: "Bob", email_hint: "bob@example.com"},
+      {display_name: "Carol"},
+      {display_name: "Dave", phone_hint: "+61412345678"}
+    ]
+  }
+→ Response: {persons: [PersonOut, PersonOut, PersonOut], affected_transactions: [...]}
+→ Each person created with resolution_status: placeholder
+→ Singleton PFGs auto-created for each
+→ If split-pending transactions exist: splits auto-assigned for all new persons
+```
+
+Returns 422 if the `persons` array is empty. Each person in the array follows the same validation as single creation. If the event's person limit would be exceeded, the entire batch is rejected with `UNFUNDED_LIMIT`.
+
 ## Orchestration — "Request Add Person" (Member)
 
 Members cannot create persons directly. Instead they submit a modification request for admin approval.

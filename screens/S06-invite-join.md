@@ -143,8 +143,10 @@ No backend call — uses the existing default invite code.
 
 ```
 1. POST /events/{eid}/invite-codes
-     {target_person_id: selected_person_id, max_uses: 1}
+     {target_person_id: selected_person_id, max_uses: 1, target_user_id: optional_uuid}
    → person-targeted invite code created
+   `max_uses` (optional integer, min 1, CR-019): Limits the number of times the code can be used.
+   `target_user_id` (optional UUID, CR-020): Restricts the code to a specific registered user.
 2. UI generates shareable link: fairgo.app/join/{code}
 3. Copy to clipboard + show "Link created!" toast
 4. Person row updates to show the link
@@ -178,13 +180,15 @@ Uses the existing `phone_hint` field on the person model. No backend changes nee
 ## Orchestration — Redeem (Logged-In User)
 
 ```
-1. POST /events/join {invite_code: "X7kQ2m"}
+1. POST /events/join {invite_code: "X7kQ2m", display_name: "Bob"}
+   `display_name` is optional (CR-016) — defaults to the user's registered display name if omitted.
    Response includes:
    - event_role (status: pending_approval or active)
    - person (auto-created or auto-claimed if target_person_id)
    - potential_matches (if identity matches detected)
-2. If target_person_id set → auto-claim, no new person
-3. If generic code → new person auto-created
+2. If target_user_id set on code → only matching user can join (403 `INVITE_NOT_FOR_YOU` for others, CR-020)
+3. If target_person_id set → auto-claim, no new person
+4. If generic code → new person auto-created
 4. If potential_matches found → show merge prompt on S07
 5. → S05 (event dashboard)
 ```
@@ -260,6 +264,7 @@ Sponsorship status is visible on S05 (event dashboard) and S07 (manage people) f
 - Person-targeted invite dropdown only shows placeholder persons (not already-claimed)
 - Personal invites auto-resolve identity on join — no manual merge needed
 - Invite codes default to unlimited uses unless creating a personal invite (max_uses: 1)
+- **Invite deactivation (CR-019):** Admin can deactivate an invite code via `POST /events/{eid}/invite-codes/{code_id}/deactivate`. Deactivated codes return 410 "Invite code has been deactivated" on join attempt.
 - **Phone field** appears inline — no separate screen needed for adding contact info
 - **"Share via..."** uses native share sheet when available, clipboard fallback otherwise
 - **"Create All Links"** only appears when there are unresolved placeholders
@@ -271,5 +276,7 @@ Sponsorship status is visible on S05 (event dashboard) and S07 (manage people) f
 | Invalid/expired code | "This invite link isn't valid or has expired" |
 | Already a member | "You're already in this event" → navigate to S05 |
 | Event is closed | "This event is no longer accepting new members" |
-| Max uses reached | "This invite link has been used too many times" |
+| Max uses reached (410) | "Usage limit reached" (CR-019) |
+| Invite deactivated (410) | "Invite code has been deactivated" (CR-019) |
+| Wrong user for personal invite (403) | "This invite code is not for you" — `INVITE_NOT_FOR_YOU` (CR-020) |
 | Phone format invalid | Inline: "Enter a valid phone number" |

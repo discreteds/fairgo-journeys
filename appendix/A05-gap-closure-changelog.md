@@ -20,6 +20,34 @@
 | E1 | Event Type & Visibility | S03, S04, SC04 | New fields: `event_type`, `visibility` on Event |
 | P3 | Activity Feed | S17, A01 | New: `GET /users/me/activity` endpoint + activity table |
 
+---
+
+## CR-015 through CR-020: Remaining Gaps Resolution (2026-03-06)
+
+**Backend branch:** main (post-002-remaining-gaps-resolution)
+**Gaps closed:** 23 functional requirements across 6 Change Records
+
+| CR | Name | Key Changes |
+|----|------|-------------|
+| CR-015 | Settlement Refinements | `effectively_settled` boolean on positions (1¢/participant tolerance); `period_label` on settlements; over-settlement guard (101% tolerance, `OVER_SETTLEMENT` 422); settlement suggestions for both singular and ongoing events; idempotency scope refinement (state-transitions no longer need `Idempotency-Key`) |
+| CR-016 | API Friction Reduction | Equal-split shortcut (`split_mode: "equal"`, `payer_id`, `split_among`); `display_name` optional on join (defaults to registration name); `UNFUNDED_LIMIT` error code with structured detail (`current_count`, `limit`, `requires_funding`) |
+| CR-017 | Response Shape Normalisation (BREAKING) | Paginated `{items, total, limit, offset}` wrapper for list endpoints; field aliases (`split_type`/`side`, `primary_financial_group`/`pfg`, `display_name`/`slot_label`) |
+| CR-018 | Template Data Completeness | PFG preset capture on save-as-template (`pfg_presets` field); template provenance on events (`source_template_id`, `source_template_version`); `settlement_count` on events |
+| CR-019 | Operational Enhancements | `max_uses` on invite codes; invite deactivation endpoint (`POST .../deactivate`); batch person creation (`POST /events/{id}/persons/batch`); configurable `ACCESS_TOKEN_EXPIRE_MINUTES` |
+| CR-020 | Error & HTTP Semantics | `DUPLICATE_MEMBER` 409 (was 400); `PENDING_MEMBER` 403 with contextual message; `INVITE_NOT_FOR_YOU` 403 for user-targeted invites; `target_user_id` on invite codes |
+
+### New Error Codes
+
+| Code | HTTP | When |
+|------|------|------|
+| `OVER_SETTLEMENT` | 422 | Settlement amount > 101% of outstanding balance |
+| `UNFUNDED_LIMIT` | 422 | Resource limit hit on unfunded event |
+| `PENDING_MEMBER` | 403 | Member with pending approval attempts restricted action |
+| `DUPLICATE_MEMBER` | 409 | Adding person already in group |
+| `INVITE_NOT_FOR_YOU` | 403 | Wrong user attempts to use user-targeted invite code |
+
+---
+
 ## Deferred (Post-MVP)
 
 | Gap | Name | Reason |

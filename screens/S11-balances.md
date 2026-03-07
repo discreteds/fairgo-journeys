@@ -148,6 +148,20 @@ GET /events/{eid}/positions
 
 Single API call. The positions endpoint returns everything needed for both views. In multi-currency events, positions are returned per currency — each currency has its own independent set of balances and checksum.
 
+### Effectively Settled State (CR-015)
+
+The positions response includes an `effectively_settled` boolean. When `true`, all outstanding balances are within rounding tolerance (1 cent per participant) — the event is "close enough" to fully settled. This is **server-authoritative** — the frontend must not apply its own tolerance calculation.
+
+```
+│  ┌──────────────────────────────┐│
+│  │  🎉 All Settled!              ││
+│  │  All balances are within      ││
+│  │  rounding tolerance.          ││
+│  └──────────────────────────────┘│
+```
+
+Display the "All Settled!" variant when `effectively_settled: true`, even if tiny cent-level remainders exist in the position data.
+
 ## Actions
 
 | Action | Who | Target | Orchestration |

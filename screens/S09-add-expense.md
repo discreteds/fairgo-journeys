@@ -239,6 +239,34 @@ POST /events/{eid}/transactions
 → S05 (event dashboard, updated balances)
 ```
 
+## Orchestration — Equal-Split Shortcut (CR-016)
+
+Instead of building the full `splits` array, the frontend can use `split_mode: "equal"`:
+
+```
+POST /events/{eid}/transactions
+  Headers: Idempotency-Key: <client-generated-uuid>
+  {
+    description: "Restaurant",
+    currency: "AUD",
+    line_items: [{
+      description: "Restaurant",
+      amount: 620.00,
+      split_mode: "equal",
+      payer_id: alice_id,
+      split_among: [alice_id, bob_id, carol_id, dave_id, eve_id, frank_id]
+    }]
+  }
+→ Server generates: 1 expense split (payer, weight=1) + N consumption splits (equal weight)
+```
+
+- `split_mode: "equal"` — triggers auto-generation of splits
+- `payer_id` — required: who paid for this line item
+- `split_among` — optional: subset of persons for consumption splits (defaults to all event persons if omitted)
+- **Mutual exclusion:** providing both `splits` array and `split_mode` returns 422
+
+This is the backend equivalent of the "Simple Mode" wireframe — the frontend maps the "Who paid?" and "Split between" selections directly to `payer_id` and `split_among`.
+
 ## Orchestration — "Save Expense" (Multi-Line-Item)
 
 Same single `POST /events/{eid}/transactions` (with `Idempotency-Key` header) but with `line_items` array containing 2+ items, each with their own splits:

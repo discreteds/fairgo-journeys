@@ -11,24 +11,40 @@
 
 ---
 
-## Which Endpoints Require `Idempotency-Key`
+## Resource-Creation vs State-Transition Endpoints (CR-015)
 
-All endpoints that create or modify financial state require a client-generated `Idempotency-Key` header. Read-only endpoints (`GET`) do not.
+Endpoints fall into two categories with different idempotency requirements:
 
-| Endpoint | Method | Idempotency Required | Rationale |
-|----------|--------|:--------------------:|-----------|
-| `/events/{eid}/transactions` | POST | ✓ | Duplicate expenses corrupt balances |
-| `/events/{eid}/transactions/{tid}` | PUT | ✓ | Re-applied edits could overwrite concurrent changes |
-| `/events/{eid}/transactions/{tid}/approve` | POST | ✓ | State transition must be exactly-once |
-| `/events/{eid}/transactions/{tid}/cancel` | POST | ✓ | Double-cancel could mask errors |
-| `/events/{eid}/settlements` | POST | ✓ | Duplicate settlements create false debts |
-| `/events/{eid}/settlements/{sid}/confirm` | POST | ✓ | State transition must be exactly-once |
-| `/events/{eid}/settlements/{sid}/pay` | POST | ✓ | Double-pay creates incorrect payment records |
-| `/events/{eid}/settlements/{sid}/void` | POST | ✓ | State transition must be exactly-once |
-| `/events/{eid}/write-offs` | POST | ✓ | Duplicate write-offs distort remaining balances |
-| `/events/{eid}/funding` | POST | ✓ | Duplicate funding charges user twice |
-| `/events/{eid}/funding/cost-spread` | POST | ✓ | Re-spreading costs doubles line items |
-| `/auth/register` | POST | ✓ | Prevents duplicate account creation on retry |
+### Resource-Creation Endpoints — Require `Idempotency-Key`
+
+These endpoints create new records. Without idempotency protection, retries would create duplicates.
+
+| Endpoint | Method | Rationale |
+|----------|--------|-----------|
+| `/events/{eid}/transactions` | POST | Duplicate expenses corrupt balances |
+| `/events/{eid}/transactions/{tid}` | PUT | Re-applied edits could overwrite concurrent changes |
+| `/events/{eid}/settlements` | POST | Duplicate settlements create false debts |
+| `/events/{eid}/write-offs` | POST | Duplicate write-offs distort remaining balances |
+| `/events/{eid}/funding` | POST | Duplicate funding charges user twice |
+| `/events/{eid}/funding/cost-spread` | POST | Re-spreading costs doubles line items |
+| `/auth/register` | POST | Prevents duplicate account creation on retry |
+
+### State-Transition Endpoints — Naturally Idempotent (No Key Needed)
+
+These endpoints move an entity from one status to another. Repeating the same transition is a no-op — the entity is already in the target state. No `Idempotency-Key` header is required.
+
+| Endpoint | Method | Transition |
+|----------|--------|-----------|
+| `/events/{eid}/transactions/{tid}/approve` | POST | proposed → approved |
+| `/events/{eid}/transactions/{tid}/cancel` | POST | * → cancelled |
+| `/events/{eid}/settlements/{sid}/confirm` | POST | proposed → confirmed |
+| `/events/{eid}/settlements/{sid}/pay` | POST | confirmed → paid |
+| `/events/{eid}/settlements/{sid}/void` | POST | proposed/confirmed → voided |
+| `/events/{eid}/event-roles/{rid}/approve` | POST | pending → active |
+| `/events/{eid}/event-roles/{rid}/reject` | POST | pending → rejected |
+| `/events/{eid}/invite-codes/{cid}/deactivate` | POST | active → deactivated |
+
+State-transition endpoints return the current state of the entity. If the transition has already been applied, the server returns the entity in its current (post-transition) state — the client sees the same result either way.
 
 ---
 
