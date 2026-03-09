@@ -198,6 +198,8 @@ Admin sees everything above, plus:
 
 > **Audit Log (JF-6):** The "Audit Log" link is visible to admin users only. It navigates to a view powered by `GET /events/{eid}/audit-log`, which returns a chronological list of all modifications, settlements, voids, and role changes for the event. Members do not see this link.
 
+> **Modification badge (CR-021):** The event response now includes `pending_modification_count`. When > 0, the Admin Extras card shows a badge (e.g., "3 pending") next to the "Modification Requests" link. This count is also available to non-admin members for their own pending requests.
+
 ## Wireframe — Pending Approval State
 
 When a member has joined but not yet been approved:
@@ -217,6 +219,8 @@ When a member has joined but not yet been approved:
 │   actions disabled)          │
 └──────────────────────────────┘
 ```
+
+> **Contact redaction (CR-021):** When the viewer's role status is `pending_approval`, the persons list redacts `email_hint` and `phone_hint` (returned as null). The pending member sees participant names and counts but not contact details. This is enforced server-side — no client-side filtering needed.
 
 ## Wireframe — Self-Merge Prompt (Member View)
 
@@ -334,6 +338,18 @@ This is informational only — no actions are attached. The `settlement_count` i
 | Save as Template | Admin | Stay on S05 | `POST /events/{eid}/save-as-template` → template created on S19 |
 | Linked event tap | All | → S05 (linked) | Navigation to linked event dashboard |
 | Decompose → (prompt) | All (shared PFG) | → S12 decompose | R09 decomposition flow |
+
+### Event Activity Feed (CR-021)
+
+The event dashboard can display recent event-scoped activity via `GET /events/{eid}/activity?page=1&page_size=10`. This complements the cross-event feed on S17 by showing only activity for the current event. Accepts the same `since` parameter for unread filtering.
+
+**Display:** Inline on the dashboard as a "Recent Activity" card below the existing content, showing the 5 most recent items with a "View All" link navigating to S17 with `?event_id={eid}` filter applied.
+
+**Orchestration — Page Load addition:**
+```
+(parallel with existing calls)
+GET /events/{eid}/activity?page=1&page_size=5 → recent activity items
+```
 
 ## Smart Defaults
 

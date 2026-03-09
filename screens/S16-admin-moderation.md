@@ -145,6 +145,8 @@ POST /events/{eid}/event-roles/{rid}/approve
 → remove from queue
 ```
 
+> **Auto-approve targeted invites (CR-021):** When a member joins via a person-targeted invite (one with `target_person_id`), their EventRole is created with `status: "active"` directly — they skip the pending approval queue entirely. The admin moderation queue only shows members who joined via general invite codes.
+
 ## Orchestration — "Reject" Role
 
 ```
@@ -184,12 +186,37 @@ GET /events/{eid}/modification-requests
 → filterable by status: pending, approved, rejected, withdrawn
 ```
 
+#### Status Filter (CR-021)
+
+The modification request list now supports filtering by status via query parameter:
+
+```
+GET /events/{eid}/modifications?status=pending&page=1&page_size=20
+```
+
+Valid values: `pending`, `approved`, `rejected`, `withdrawn`. Default (no filter) returns all. The UI shows a segmented control or tab bar above the list: **All | Pending | Approved | Rejected**.
+
 ### Orchestration — View Modification Request Detail
 
 ```
 GET /events/{eid}/modification-requests/{id}
 → returns full request detail including proposed_changes and message
 ```
+
+#### Preview Impact (CR-021)
+
+The modification request detail view includes a "Preview Impact" button that calls the new preview endpoint:
+
+```
+GET /events/{eid}/modifications/{mid}/preview
+→ 200: {
+    current_state: { amount, splits, ... },
+    proposed_state: { amount, splits, ... },
+    position_deltas: [ { person_id, person_name, delta } ]
+  }
+```
+
+The preview renders as a side-by-side diff below the proposed changes section. `position_deltas` shows how each person's balance would change (e.g., "Alice: +$12.50, Bob: -$12.50"). This helps the admin understand the financial impact before approving.
 
 ### Orchestration — Create Modification Request (Member)
 

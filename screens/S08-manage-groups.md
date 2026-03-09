@@ -85,6 +85,8 @@ Groups where a person's PFG points to them are settlement groups. All others are
 
 > **Composite endpoint (JF-2B):** Group creation uses a single composite call that accepts the group definition and members array together. This replaces the previous multi-step approach (create group, then add members individually) and reduces network round-trips from N+1 to 1.
 
+> **Permission change (CR-021):** Group creation is now available to all event members, not just admins. The `+ New Group` button appears for any member with an active role. The orchestration call (`POST /events/{eid}/groups`) now uses `require_event_role` instead of `require_admin`. Admin role is still required for editing or archiving other members' groups.
+
 ## Orchestration — Edit Group Members (Admin)
 
 ```

@@ -298,6 +298,23 @@ When a potential match is shown:
 
 Self-merge routing verified: non-admin members reach `authorize_self_merge()` via the try/except in the merge endpoint. The route-level auth (`require_event_role()`) permits members. Integration tested (Gap I2).
 
+## Orchestration — "Claim as Dependent" (Member, CR-021)
+
+Members can claim placeholder persons as dependents (children, partners) in addition to claiming as "self". This allows a parent to manage a child's participation without the child needing an account.
+
+**Trigger:** Member taps a placeholder person card → Person Detail sheet shows "This is me" (existing) and a new "Claim as Dependent" button.
+
+```
+1. POST /events/{eid}/persons/{pid}/claim
+   Body: { "role": "sponsor" }
+   → 200: person with resolution_status "claimed"
+2. Creates UserPerson with role="sponsor" (not "self")
+3. Unlike "self" claiming, a user can sponsor multiple persons
+   while having only one "self" person per event
+```
+
+**Person Detail wireframe update:** Add a second button below "This is me" labeled "Claim as Dependent". Both buttons call the same endpoint with different `role` values (`"self"` vs `"sponsor"`).
+
 ## PFG Discovery Prompt
 
 After adding people, S07 surfaces a natural-language prompt to discover settlement groups — not a settings menu:

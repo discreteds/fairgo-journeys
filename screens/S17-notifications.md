@@ -73,6 +73,22 @@ Single call. Activities are recorded server-side when key actions occur (transac
 
 **`since` parameter (JF-4B):** Optional ISO 8601 timestamp. When provided, only activities created after the given timestamp are returned. This is used to fetch new activity since the user's last visit, powering the unread badge count on the Activity tab. Example: `?since=2026-01-15T00:00:00Z` returns only activities from January 15, 2026 onwards.
 
+### Event-Scoped Feed (CR-021)
+
+In addition to the cross-event feed, an event-scoped endpoint is now available:
+
+```
+GET /events/{eid}/activity?page=1&page_size=50&since=...
+```
+
+When S17 is navigated to from S05's "View All" activity link, the `event_id` filter is applied. The screen header shows the event name and a "Show All Events" toggle to switch back to the cross-event feed.
+
+The cross-event feed also supports event filtering via query parameter:
+
+```
+GET /users/me/activity?event_id={eid}&page=1&page_size=50
+```
+
 ### Superseded: Client-Side Derived (Approach A)
 
 The original MVP approach of aggregating from N x 3 endpoint calls per event is no longer needed. The backend activity endpoint replaces it entirely.

@@ -83,6 +83,35 @@ Admin can void proposed or confirmed settlements. Voided settlements display who
 
 Voided settlement response includes `voided_at` (ISO 8601 timestamp) and `voided_by` (person display name + user ID).
 
+## Wireframe — Partially Paid Settlement (CR-021)
+
+Settlement card in `partially_paid` state with progress tracking and payment history.
+
+```
+┌─────────────────────────────────┐
+│  ← Settle Up                   │
+├─────────────────────────────────┤
+│                                 │
+│  🔵 Johnson Family → 🔴 You    │
+│  $200.00 AUD                   │
+│                                 │
+│  ████████░░░░░░░░  $120 / $200 │
+│  Partially Paid                 │
+│                                 │
+│  Payments:                      │
+│  • $80.00  — 2 Mar 2026        │
+│  • $40.00  — 5 Mar 2026        │
+│                                 │
+│  ┌─────────────────────────┐   │
+│  │    Pay Remaining $80    │   │
+│  └─────────────────────────┘   │
+│  ┌─────────────────────────┐   │
+│  │     Pay Other Amount    │   │
+│  └─────────────────────────┘   │
+│                                 │
+└─────────────────────────────────┘
+```
+
 ## Wireframe — Ongoing Event Period Indicator
 
 For ongoing events (`event_type: ongoing`), the settle-up screen shows a period indicator above the settlements. This scopes the current settlement to transactions since the last bookmark.
@@ -171,6 +200,21 @@ admin only      admin only
 
 Voided settlements are preserved for audit but excluded from positions and settlement suggestions.
 
+### Partial Payment Path (CR-021)
+
+Settlements now support partial payments. The updated status flow:
+
+```
+proposed ──confirm──▶ confirmed ──pay──▶ paid
+                         │                 ▲
+                         │     pay(partial) │
+                         ▼                 │
+                    partially_paid ─pay──▶─┘
+    (any non-paid) ──void──▶ voided
+```
+
+A settlement enters `partially_paid` when a payment is recorded for less than the remaining balance. The `paid_total` and `remaining` fields track cumulative progress. Subsequent payments can bring it to `paid`.
+
 ## Orchestration — Page Load
 
 ```
@@ -193,6 +237,8 @@ POST /events/{eid}/settlements
 ```
 
 `period_label` (optional string, CR-015): Free-text label for the settlement period (e.g., "March 2026"). Useful for ongoing events to identify which billing cycle a settlement covers.
+
+> **Permission change (CR-021):** Members can now create settlements where `from_group_id` is their own PFG. Admin role is still required for creating settlements on behalf of others. The "Propose Settlement" button appears for any member who has an outstanding balance, not just admins.
 
 ### Over-Settlement Guard (CR-015)
 
@@ -227,6 +273,22 @@ POST /events/{eid}/settlements/{sid}/confirm
 POST /events/{eid}/settlements/{sid}/pay
 → status: paid
 ```
+
+## Orchestration — "Pay Partial Amount" (CR-021)
+
+When the user taps "Pay Other Amount" on a confirmed or partially_paid settlement:
+
+```
+1. UI shows amount input (pre-filled with remaining balance)
+2. POST /events/{eid}/settlements/{sid}/pay
+   Headers: Idempotency-Key: <uuid>
+   Body: { "amount": "40.00" }
+   → 200: settlement with status "partially_paid", updated paid_total and remaining
+3. If amount >= remaining → status becomes "paid" (full settlement)
+4. If amount > remaining → 422 VALIDATION_ERROR
+```
+
+"Pay Remaining" is a convenience shortcut that calls the same endpoint without the `amount` field (or with `amount` equal to `remaining`), which completes the settlement to `paid` status.
 
 ## Orchestration — "Void" (Admin)
 
