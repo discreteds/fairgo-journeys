@@ -381,5 +381,6 @@ GET /events/{eid}/activity?page=1&page_size=5 → recent activity items
 | Event not found | "This event doesn't exist or you don't have access" → S03 |
 | Pending approval | Read-only view with approval banner |
 | Event closed | Read-only view with "Event closed" banner, no FAB, admin sees [Reopen Event] |
-| Unfunded limit hit (`UNFUNDED_LIMIT`, 422) | Shows `current_count` and `limit` from error detail: "Person limit reached (4/5). This event needs funding to add more." → link to S14 (admin) or "Contact your event admin" (member) |
+| Unfunded limit hit (`UNFUNDED_LIMIT`, 422) — **member** | Shows `current_count` and `limit` from error detail: "Person limit reached (4/5). Ask the event admin to fund the event to increase limits." |
+| Unfunded limit hit (`UNFUNDED_LIMIT`, 422) — **admin** | Shows `current_count` and `limit` from error detail: "Person limit reached (4/5). Fund the event via POST /events/{event_id}/funding" → link to S14 |
 | Pending member action (`PENDING_MEMBER`, 403) | "Your access is pending approval. You can view but not modify this event." |

@@ -243,10 +243,13 @@ GET /memberships/{id}/ledger
 ## Orchestration — "Upgrade" (Free → Standard)
 
 ```
-POST /memberships
+POST /users/me/membership
   {tier: "standard", billing_cycle: "monthly"}
-→ membership created, quotas activated
+→ 201: membership created, quotas activated
+→ 200: if membership already exists, upgrades tier if different
 ```
+
+> **Idempotent upgrade:** `POST /users/me/membership` returns 200 (not 409) if a membership already exists and the requested tier is different — it upgrades the tier in place. If the tier is the same, it returns 200 with the existing membership unchanged.
 
 ## Orchestration — "Upgrade to Premium" (Standard → Premium)
 
@@ -259,9 +262,10 @@ PUT /memberships/me
 ## Orchestration — "Change to Annual"
 
 ```
-PUT /memberships/me
+PATCH /users/me/membership
   {billing_cycle: "annual"}
 → billing cycle changed
+→ accepts "monthly" or "annual" as billing_cycle values
 ```
 
 ## Orchestration — "Cancel Subscription"

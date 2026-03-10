@@ -142,6 +142,7 @@ If the user is admin of multiple events, repeat for each event (parallelised).
 ```
 POST /events/{eid}/event-roles/{rid}/approve
 → role status: active
+→ response includes `display_name` field (the approved member's display name)
 → remove from queue
 ```
 

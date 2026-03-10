@@ -160,7 +160,8 @@
 ```
 1. GET /templates
    → returns user's templates (owned + shared via access list)
-   → each template includes: id, name, version, member_count, role (owner/member)
+   → each template includes: id, name, version, member_count, role (owner/member), access_level
+   → access_level values: "owner", "read", "write", or "public"
 ```
 
 Single API call. The list includes both templates the user owns and templates shared with them (via the access array).
@@ -236,6 +237,8 @@ Owner only. Full replacement — the client sends the complete member list, not 
 - Version badge shown on each template card (v1, v2, etc.)
 - Creator is auto-added as first member
 - Registered users in member list auto-receive "member" access (can instantiate but not edit)
+- **Access level** shown per template in the list: "owner", "read", "write", or "public"
+- **Template sharing** accepts `email` as an alternative to `user_id` — only one of the two is required (e.g., share by email when you don't know the user's ID)
 - Placeholder members show email hint and "(placeholder)" label
 - "Use This Template" shortcut visible on detail view for quick instantiation via S04
 

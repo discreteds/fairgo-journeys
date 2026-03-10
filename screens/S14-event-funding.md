@@ -222,6 +222,7 @@ POST /events/{eid}/funding
 | No slots available | "No subscription slots available. Use per-event fee or upgrade your plan." → link to S13 |
 | Already funded | "This event is already funded" (show funded state) |
 | Cost spread already exists | "Cost spread already active" (prevent duplicate — known backend gap R9) |
+| Invalid funding type (422) | "Input should be 'subscription_slot' or 'per_event_fee'" — clear validation message instead of regex pattern |
 | Event locked | "This event is locked and can no longer be modified" |
 | Ceiling exceeded | "You've reached your per-member slot ceiling for this membership. Ask a co-member to fund, or use a different membership." |
 | Shared membership quota exhausted | "This shared membership has no slots remaining this cycle. Upgrade or use per-event fee." |

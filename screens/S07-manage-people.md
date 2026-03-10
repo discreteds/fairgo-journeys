@@ -334,8 +334,12 @@ Tapping "Add group" opens a 2-step flow (see SC03 for the full narrative):
 
 ```
 ⚡ POST /events/{eid}/pfgs
-    {name: "Mark & Lisa", member_ids: [mark_id, lisa_id]}
-    → creates non-singleton PFG, assigns both persons in one call
+    {name: "Mark & Lisa", members: [
+      {person_id: mark_id, weight: "1.0", modifier: "1.0", is_financial: true},
+      {person_id: lisa_id, weight: "1.0", modifier: "1.0", is_financial: true}
+    ]}
+    → creates non-singleton PFG with per-member weight, modifier, and is_financial fields in a single call
+    → member_ids shorthand is still accepted for equal-weight defaults
 ```
 
 This replaces the old 7-step flow with a simplified 2-step approach. The user never sees the words "PFG" or "singleton."
@@ -392,3 +396,4 @@ POST /events/{eid}/groups {name: "Drinkers", type: "composite", member_group_ids
 | Participant limit reached (unfunded) | "This event needs funding to add more people" → S14 |
 | Remove person with splits | "Can't remove — this person has expenses. Reassign first." |
 | PFG reassignment to singleton | "Can't join a solo settlement group. Create a shared one instead." |
+| Re-merge already merged person (`ALREADY_MERGED`, 409) | "This person has already been merged into another person" |
